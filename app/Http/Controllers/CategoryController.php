@@ -225,4 +225,15 @@ class CategoryController extends Controller
         Cache::forget('featured_categories');
         return 1;
     }
+
+    public function bulk_delete(Request $request)
+    {
+        if ($request->id) {
+            foreach ($request->id as $category_id) {
+                $this->destroy($category_id);
+            }
+        }
+
+        return 1;
+    }
 }

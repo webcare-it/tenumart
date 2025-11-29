@@ -8,7 +8,8 @@ use App\Services\CacheService;
 
 class Category extends Model
 {
-    protected $with = ['category_translations'];
+    // Remove the default with clause to avoid loading translations unnecessarily
+    // protected $with = ['category_translations'];
 
     // Boot the model to add event listeners
     public static function boot()

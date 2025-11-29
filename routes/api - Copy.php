@@ -1,46 +1,30 @@
 <?php
 
-
-Route::group(['prefix' => 'v2/auth', 'middleware' => ['app_language']], function() {
-    Route::post('login', 'Api\V2\AuthController@login');
-    Route::post('signup', 'Api\V2\AuthController@signup');
-    Route::post('social-login', 'Api\V2\AuthController@socialLogin');
-    Route::post('password/forget_request', 'Api\V2\PasswordResetController@forgetRequest');
-    Route::post('password/confirm_reset', 'Api\V2\PasswordResetController@confirmReset');
-    Route::post('password/resend_code', 'Api\V2\PasswordResetController@resendCode');
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('logout', 'Api\V2\AuthController@logout');
-        Route::get('user', 'Api\V2\AuthController@user');
-    });
-    Route::post('resend_code', 'Api\V2\AuthController@resendCode');
-    Route::post('confirm_code', 'Api\V2\AuthController@confirmCode');
-});
-
-Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
+Route::group(['prefix' => 'v2'], function() {
     Route::prefix('delivery-boy')->group(function () {
-        Route::get('dashboard-summary/{id}', 'Api\V2\DeliveryBoyController@dashboard_summary')->middleware('auth:sanctum');
-        Route::get('deliveries/completed/{id}', 'Api\V2\DeliveryBoyController@completed_delivery')->middleware('auth:sanctum');
-        Route::get('deliveries/cancelled/{id}', 'Api\V2\DeliveryBoyController@cancelled_delivery')->middleware('auth:sanctum');
-        Route::get('deliveries/on_the_way/{id}', 'Api\V2\DeliveryBoyController@on_the_way_delivery')->middleware('auth:sanctum');
-        Route::get('deliveries/picked_up/{id}', 'Api\V2\DeliveryBoyController@picked_up_delivery')->middleware('auth:sanctum');
-        Route::get('deliveries/assigned/{id}', 'Api\V2\DeliveryBoyController@assigned_delivery')->middleware('auth:sanctum');
-        Route::get('collection-summary/{id}', 'Api\V2\DeliveryBoyController@collection_summary')->middleware('auth:sanctum');
-        Route::get('earning-summary/{id}', 'Api\V2\DeliveryBoyController@earning_summary')->middleware('auth:sanctum');
-        Route::get('collection/{id}', 'Api\V2\DeliveryBoyController@collection')->middleware('auth:sanctum');
-        Route::get('earning/{id}', 'Api\V2\DeliveryBoyController@earning')->middleware('auth:sanctum');
-        Route::get('cancel-request/{id}', 'Api\V2\DeliveryBoyController@cancel_request')->middleware('auth:sanctum');
-        Route::post('change-delivery-status', 'Api\V2\DeliveryBoyController@change_delivery_status')->middleware('auth:sanctum');
+        Route::get('dashboard-summary/{id}', 'Api\V2\DeliveryBoyController@dashboard_summary');
+        Route::get('deliveries/completed/{id}', 'Api\V2\DeliveryBoyController@completed_delivery');
+        Route::get('deliveries/cancelled/{id}', 'Api\V2\DeliveryBoyController@cancelled_delivery');
+        Route::get('deliveries/on_the_way/{id}', 'Api\V2\DeliveryBoyController@on_the_way_delivery');
+        Route::get('deliveries/picked_up/{id}', 'Api\V2\DeliveryBoyController@picked_up_delivery');
+        Route::get('deliveries/assigned/{id}', 'Api\V2\DeliveryBoyController@assigned_delivery');
+        Route::get('collection-summary/{id}', 'Api\V2\DeliveryBoyController@collection_summary');
+        Route::get('earning-summary/{id}', 'Api\V2\DeliveryBoyController@earning_summary');
+        Route::get('collection/{id}', 'Api\V2\DeliveryBoyController@collection');
+        Route::get('earning/{id}', 'Api\V2\DeliveryBoyController@earning');
+        Route::get('cancel-request/{id}', 'Api\V2\DeliveryBoyController@cancel_request');
+        Route::post('change-delivery-status', 'Api\V2\DeliveryBoyController@change_delivery_status');
     });
 
 
     Route::get('get-search-suggestions', 'Api\V2\SearchSuggestionController@getList');
-    Route::get('languages', 'Api\V2\LanguageController@getList');
+    // Route::get('languages', 'Api\V2\LanguageController@getList');  // Removed language route
 
-    Route::get('chat/conversations/{id}', 'Api\V2\ChatController@conversations')->middleware('auth:sanctum');
-    Route::get('chat/messages/{id}', 'Api\V2\ChatController@messages')->middleware('auth:sanctum');
-    Route::post('chat/insert-message', 'Api\V2\ChatController@insert_message')->middleware('auth:sanctum');
-    Route::get('chat/get-new-messages/{conversation_id}/{last_message_id}', 'Api\V2\ChatController@get_new_messages')->middleware('auth:sanctum');
-    Route::post('chat/create-conversation', 'Api\V2\ChatController@create_conversation')->middleware('auth:sanctum');
+    Route::get('chat/conversations/{id}', 'Api\V2\ChatController@conversations');
+    Route::get('chat/messages/{id}', 'Api\V2\ChatController@messages');
+    Route::post('chat/insert-message', 'Api\V2\ChatController@insert_message');
+    Route::get('chat/get-new-messages/{conversation_id}/{last_message_id}', 'Api\V2\ChatController@get_new_messages');
+    Route::post('chat/create-conversation', 'Api\V2\ChatController@create_conversation');
 
     Route::apiResource('banners', 'Api\V2\BannerController')->only('index');
 
@@ -94,25 +78,25 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
     Route::get('products/home', 'Api\V2\ProductController@home');
     Route::apiResource('products', 'Api\V2\ProductController')->except(['store', 'update', 'destroy']);
 
-    Route::get('cart-summary/{user_id}', 'Api\V2\CartController@summary')->middleware('auth:sanctum');
-    Route::post('carts/process', 'Api\V2\CartController@process')->middleware('auth:sanctum');
-    Route::post('carts/add', 'Api\V2\CartController@add')->middleware('auth:sanctum');
-    Route::post('carts/change-quantity', 'Api\V2\CartController@changeQuantity')->middleware('auth:sanctum');
-    Route::apiResource('carts', 'Api\V2\CartController')->only('destroy')->middleware('auth:sanctum');
-    Route::post('carts/{user_id}', 'Api\V2\CartController@getList')->middleware('auth:sanctum');
+    Route::get('cart-summary/{user_id}', 'Api\V2\CartController@summary');
+    Route::post('carts/process', 'Api\V2\CartController@process');
+    Route::post('carts/add', 'Api\V2\CartController@add');
+    Route::post('carts/change-quantity', 'Api\V2\CartController@changeQuantity');
+    Route::apiResource('carts', 'Api\V2\CartController')->only('destroy');
+    Route::post('carts/{user_id}', 'Api\V2\CartController@getList');
 
 
-    Route::post('coupon-apply', 'Api\V2\CheckoutController@apply_coupon_code')->middleware('auth:sanctum');
-    Route::post('coupon-remove', 'Api\V2\CheckoutController@remove_coupon_code')->middleware('auth:sanctum');
+    Route::post('coupon-apply', 'Api\V2\CheckoutController@apply_coupon_code');
+    Route::post('coupon-remove', 'Api\V2\CheckoutController@remove_coupon_code');
 
-    Route::post('update-address-in-cart', 'Api\V2\AddressController@updateAddressInCart')->middleware('auth:sanctum');
+    Route::post('update-address-in-cart', 'Api\V2\AddressController@updateAddressInCart');
 
     Route::get('payment-types', 'Api\V2\PaymentTypesController@getList');
 
     Route::get('reviews/product/{id}', 'Api\V2\ReviewController@index')->name('api.reviews.index');
     Route::post('reviews/submit', 'Api\V2\ReviewController@submit')->name('api.reviews.submit');
 
-    Route::get('shop/user/{id}', 'Api\V2\ShopController@shopOfUser')->middleware('auth:sanctum');
+    Route::get('shop/user/{id}', 'Api\V2\ShopController@shopOfUser');
     Route::get('shops/details/{id}', 'Api\V2\ShopController@info')->name('shops.info');
     Route::get('shops/products/all/{id}', 'Api\V2\ShopController@allProducts')->name('shops.allProducts');
     Route::get('shops/products/top/{id}', 'Api\V2\ShopController@topSellingProducts')->name('shops.topSellingProducts');
@@ -135,22 +119,22 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
     Route::get('policies/support', 'Api\V2\PolicyController@supportPolicy')->name('policies.support');
     Route::get('policies/return', 'Api\V2\PolicyController@returnPolicy')->name('policies.return');
 
-    Route::get('user/info/{id}', 'Api\V2\UserController@info')->middleware('auth:sanctum');
-    Route::post('user/info/update', 'Api\V2\UserController@updateName')->middleware('auth:sanctum');
-    Route::get('user/shipping/address/{id}', 'Api\V2\AddressController@addresses')->middleware('auth:sanctum');
-    Route::post('user/shipping/create', 'Api\V2\AddressController@createShippingAddress')->middleware('auth:sanctum');
-    Route::post('user/shipping/update', 'Api\V2\AddressController@updateShippingAddress')->middleware('auth:sanctum');
-    Route::post('user/shipping/update-location', 'Api\V2\AddressController@updateShippingAddressLocation')->middleware('auth:sanctum');
-    Route::post('user/shipping/make_default', 'Api\V2\AddressController@makeShippingAddressDefault')->middleware('auth:sanctum');
-    Route::get('user/shipping/delete/{id}', 'Api\V2\AddressController@deleteShippingAddress')->middleware('auth:sanctum');
+    Route::get('user/info/{id}', 'Api\V2\UserController@info');
+    Route::post('user/info/update', 'Api\V2\UserController@updateName');
+    Route::get('user/shipping/address/{id}', 'Api\V2\AddressController@addresses');
+    Route::post('user/shipping/create', 'Api\V2\AddressController@createShippingAddress');
+    Route::post('user/shipping/update', 'Api\V2\AddressController@updateShippingAddress');
+    Route::post('user/shipping/update-location', 'Api\V2\AddressController@updateShippingAddressLocation');
+    Route::post('user/shipping/make_default', 'Api\V2\AddressController@makeShippingAddressDefault');
+    Route::get('user/shipping/delete/{id}', 'Api\V2\AddressController@deleteShippingAddress');
 
-    Route::get('clubpoint/get-list/{id}', 'Api\V2\ClubpointController@get_list')->middleware('auth:sanctum');
-    Route::post('clubpoint/convert-into-wallet', 'Api\V2\ClubpointController@convert_into_wallet')->middleware('auth:sanctum');
+    Route::get('clubpoint/get-list/{id}', 'Api\V2\ClubpointController@get_list');
+    Route::post('clubpoint/convert-into-wallet', 'Api\V2\ClubpointController@convert_into_wallet');
 
-    Route::get('refund-request/get-list/{id}', 'Api\V2\RefundRequestController@get_list')->middleware('auth:sanctum');
-    Route::post('refund-request/send', 'Api\V2\RefundRequestController@send')->middleware('auth:sanctum');
+    Route::get('refund-request/get-list/{id}', 'Api\V2\RefundRequestController@get_list');
+    Route::post('refund-request/send', 'Api\V2\RefundRequestController@send');
 
-    Route::post('get-user-by-access_token', 'Api\V2\UserController@getUserInfoByAccessToken')->middleware('auth:sanctum');
+    Route::post('get-user-by-access_token', 'Api\V2\UserController@getUserInfoByAccessToken');
 
     Route::get('cities', 'Api\V2\AddressController@getCities');
     Route::get('states', 'Api\V2\AddressController@getStates');
@@ -159,10 +143,9 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
     Route::get('cities-by-state/{state_id}', 'Api\V2\AddressController@getCitiesByState');
     Route::get('states-by-country/{country_id}', 'Api\V2\AddressController@getStatesByCountry');
 
-    Route::post('shipping_cost', 'Api\V2\ShippingController@shipping_cost')->middleware('auth:sanctum');
+    Route::post('shipping_cost', 'Api\V2\ShippingController@shipping_cost');
 
-    Route::post('coupon/apply', 'Api\V2\CouponController@apply')->middleware('auth:sanctum');
-
+    Route::post('coupon/apply', 'Api\V2\CouponController@apply');
 
     Route::any('stripe', 'Api\V2\StripeController@stripe');
     Route::any('/stripe/create-checkout-session', 'Api\V2\StripeController@create_checkout_session')->name('api.stripe.get_token');
@@ -185,7 +168,7 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
     Route::any('iyzico/callback', 'Api\V2\IyzicoController@callback')->name('api.iyzico.callback');
     Route::post('iyzico/success', 'Api\V2\IyzicoController@success')->name('api.iyzico.success');
 
-    Route::get('bkash/begin', 'Api\V2\BkashController@begin')->middleware('auth:sanctum');
+    Route::get('bkash/begin', 'Api\V2\BkashController@begin');
     Route::get('bkash/api/webpage/{token}/{amount}', 'Api\V2\BkashController@webpage')->name('api.bkash.webpage');
     Route::any('bkash/api/checkout/{token}/{amount}', 'Api\V2\BkashController@checkout')->name('api.bkash.checkout');
     Route::any('bkash/api/execute/{token}', 'Api\V2\BkashController@execute')->name('api.bkash.execute');
@@ -193,7 +176,7 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
     Route::any('bkash/api/success', 'Api\V2\BkashController@success')->name('api.bkash.success');
     Route::post('bkash/api/process', 'Api\V2\BkashController@process')->name('api.bkash.process');
 
-    Route::get('nagad/begin', 'Api\V2\NagadController@begin')->middleware('auth:sanctum');
+    Route::get('nagad/begin', 'Api\V2\NagadController@begin');
     Route::any('nagad/verify/{payment_type}', 'Api\V2\NagadController@verify')->name('app.nagad.callback_url');
     Route::post('nagad/process', 'Api\V2\NagadController@process');
 
@@ -208,39 +191,22 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
     Route::any('paytm/payment/pay', 'Api\V2\PaytmController@pay')->name('api.paytm.pay');
     Route::any('paytm/payment/callback', 'Api\V2\PaytmController@callback')->name('api.paytm.callback');
 
-    Route::post('payments/pay/wallet', 'Api\V2\WalletController@processPayment')->middleware('auth:sanctum');
-    Route::post('payments/pay/cod', 'Api\V2\PaymentController@cashOnDelivery')->middleware('auth:sanctum');
-    Route::post('payments/pay/manual', 'Api\V2\PaymentController@manualPayment')->middleware('auth:sanctum');
+    Route::post('payments/pay/wallet', 'Api\V2\WalletController@processPayment');
+    Route::post('payments/pay/cod', 'Api\V2\PaymentController@cashOnDelivery');
+    Route::post('payments/pay/manual', 'Api\V2\PaymentController@manualPayment');
 
     Route::post('offline/payment/submit', 'Api\V2\OfflinePaymentController@submit')->name('api.offline.payment.submit');
 
-    Route::post('order/store', 'Api\V2\OrderController@store')->middleware('auth:sanctum');
-    Route::get('profile/counters/{user_id}', 'Api\V2\ProfileController@counters')->middleware('auth:sanctum');
-    Route::post('profile/update', 'Api\V2\ProfileController@update')->middleware('auth:sanctum');
-    Route::post('profile/update-device-token', 'Api\V2\ProfileController@update_device_token')->middleware('auth:sanctum');
-    Route::post('profile/update-image', 'Api\V2\ProfileController@updateImage')->middleware('auth:sanctum');
-    Route::post('profile/image-upload', 'Api\V2\ProfileController@imageUpload')->middleware('auth:sanctum');
-    Route::post('profile/check-phone-and-email', 'Api\V2\ProfileController@checkIfPhoneAndEmailAvailable')->middleware('auth:sanctum');
+    Route::post('order/store', 'Api\V2\OrderController@store');
+    Route::get('profile/counters/{user_id}', 'Api\V2\ProfileController@counters');
+    Route::post('profile/update', 'Api\V2\ProfileController@update');
+    Route::post('profile/update-device-token', 'Api\V2\ProfileController@update_device_token');
+    Route::post('profile/update-image', 'Api\V2\ProfileController@updateImage');
+    Route::post('profile/image-upload', 'Api\V2\ProfileController@imageUpload');
+    Route::post('profile/check-phone-and-email', 'Api\V2\ProfileController@checkIfPhoneAndEmailAvailable');
 
-    Route::post('file/image-upload', 'Api\V2\FileController@imageUpload')->middleware('auth:sanctum');
+    Route::post('file/image-upload', 'Api\V2\FileController@imageUpload');
 
-    Route::get('wallet/balance/{id}', 'Api\V2\WalletController@balance')->middleware('auth:sanctum');
-    Route::get('wallet/history/{id}', 'Api\V2\WalletController@walletRechargeHistory')->middleware('auth:sanctum');
-
-    Route::get('flash-deals', 'Api\V2\FlashDealController@index');
-    Route::get('flash-deal-products/{id}', 'Api\V2\FlashDealController@products');
-
-    //Addon list
-    Route::get('addon-list', 'Api\V2\ConfigController@addon_list');
-    //Activated social login list
-    Route::get('activated-social-login', 'Api\V2\ConfigController@activated_social_login');
-});
-
-Route::fallback(function() {
-    return response()->json([
-        'data' => [],
-        'success' => false,
-        'status' => 404,
-        'message' => 'Invalid Route'
-    ]);
+    Route::get('wallet/balance/{id}', 'Api\V2\WalletController@balance');
+    Route::get('wallet/history/{id}', 'Api\V2\WalletController@walletRechargeHistory');
 });

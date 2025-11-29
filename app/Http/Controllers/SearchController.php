@@ -38,7 +38,7 @@ class SearchController extends Controller
         }
 
         if($seller_id != null){
-            $conditions = array_merge($conditions, ['user_id' => Seller::findOrFail($seller_id)->user->id]);
+            $conditions = array_merge($conditions, ['user_id' => $seller_id]);
         }
 
         $products = Product::where($conditions);
@@ -76,13 +76,8 @@ class SearchController extends Controller
             $searchController = new SearchController;
             $searchController->store($request);
 
-            $products->where(function ($q) use ($query){
-                foreach (explode(' ', trim($query)) as $word) {
-                    $q->where('name', 'like', '%'.$word.'%')->orWhere('tags', 'like', '%'.$word.'%')->orWhereHas('product_translations', function($q) use ($word){
-                        $q->where('name', 'like', '%'.$word.'%');
-                    });
-                }
-            });
+            // Remove translation search and use exact matching - only match name
+            $products->where('name', 'like', '%'.$query.'%');
         }
 
         switch ($sort_by) {
@@ -150,32 +145,12 @@ class SearchController extends Controller
     {
         $keywords = array();
         $query = $request->search;
-        $products = Product::where('published', 1)->where('tags', 'like', '%'.$query.'%')->get();
-        foreach ($products as $key => $product) {
-            foreach (explode(',',$product->tags) as $key => $tag) {
-                if(stripos($tag, $query) !== false){
-                    if(sizeof($keywords) > 5){
-                        break;
-                    }
-                    else{
-                        if(!in_array(strtolower($tag), $keywords)){
-                            array_push($keywords, strtolower($tag));
-                        }
-                    }
-                }
-            }
-        }
 
         $products = filter_products(Product::query());
 
+        // Remove translation search and use exact matching - only match name
         $products = $products->where('published', 1)
-                        ->where(function ($q) use ($query){
-                            foreach (explode(' ', trim($query)) as $word) {
-                                $q->where('name', 'like', '%'.$word.'%')->orWhere('tags', 'like', '%'.$word.'%')->orWhereHas('product_translations', function($q) use ($word){
-                                    $q->where('name', 'like', '%'.$word.'%');
-                                });
-                            }
-                        })
+                        ->where('name', 'like', '%'.$query.'%')
                     ->get();
 
         $categories = Category::where('name', 'like', '%'.$query.'%')->get()->take(3);

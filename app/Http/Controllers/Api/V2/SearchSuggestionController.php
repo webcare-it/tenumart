@@ -25,13 +25,7 @@ class SearchSuggestionController extends Controller
         if ($type == "product") {
             $product_query = Product::query();
             if ($query_key != "") {
-                $product_query->where(function ($query) use ($query_key) {
-                    foreach (explode(' ', trim($query_key)) as $word) {
-                        $query->where('name', 'like', '%'.$word.'%')->orWhere('tags', 'like', '%'.$word.'%')->orWhereHas('product_translations', function($query) use ($word){
-                            $query->where('name', 'like', '%'.$word.'%');
-                        });
-                    }
-                });
+                $product_query->where('name', 'like', '%'.$query_key.'%');
             }
 
             $products = filter_products($product_query)->limit(3)->get();

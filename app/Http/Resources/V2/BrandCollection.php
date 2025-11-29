@@ -8,7 +8,6 @@ class BrandCollection extends ResourceCollection
 {
     public function toArray($request)
     {
-        $lang = $request->get('lang', app()->getLocale());
         $fields = $request->get('fields', null);
         
         // Convert fields string to array if provided
@@ -17,14 +16,10 @@ class BrandCollection extends ResourceCollection
         }
 
         return [
-            'data' => $this->collection->map(function ($brand) use ($lang, $fields) {
-                $translation = $brand->translations
-                    ->where('lang', $lang)
-                    ->first();
-
+            'data' => $this->collection->map(function ($brand) use ($fields) {
                 $result = [
                     'id' => $brand->id,
-                    'name' => $translation ? $translation->name : $brand->name,
+                    'name' => $brand->name,
                     'logo' => api_asset($brand->logo),
                     'links' => [
                         'products' => route('api.products.brand', $brand->id)

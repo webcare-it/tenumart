@@ -9,9 +9,9 @@ class CategoryCollection extends ResourceCollection
 {
     public function toArray($request)
     {
-        // Get language from query or fallback to app locale
-        $lang = $request->get('lang', app()->getLocale());
         $fields = $request->get('fields', null);
+        // Check if we need to calculate number of children
+        $withChildrenCount = $request->get('with_children_count', false);
         
         // Convert fields string to array if provided
         if ($fields) {
@@ -19,59 +19,36 @@ class CategoryCollection extends ResourceCollection
         }
 
         return [
-            'data' => $this->collection->map(function ($category) use ($lang, $fields) {
-                return $this->formatCategory($category, $lang, $fields);
+            'data' => $this->collection->map(function ($category) use ($fields, $withChildrenCount) {
+                return $this->formatCategory($category, $fields, $withChildrenCount);
             }),
         ];
     }
 
-    private function formatCategory($category, $lang, $fields = null)
+    private function formatCategory($category, $fields = null, $withChildrenCount = false)
     {
-        // Fetch translation for this category
-        $translation = $category->translations
-            ->where('lang', $lang)
-            ->first();
-
         $result = [
             'id' => $category->id,
-            'name' => $translation ? $translation->name : $category->name,
+            'name' => $category->name,
             'banner' => api_asset($category->banner),
             'icon' => api_asset($category->icon),
-            'number_of_children' => CategoryUtility::get_immediate_children_count($category->id),
-            'links' => [
-                'products' => route('api.products.category', $category->id),
-                'sub_categories' => route('subCategories.index', $category->id),
-            ],
+            'number_of_children' => $withChildrenCount ? CategoryUtility::get_immediate_children_count($category->id) : 0,
             'sub_categories' => $category->children
-                ? $category->children->map(function ($subCategory) use ($lang, $fields) {
-                    $translation = $subCategory->translations
-                        ->where('lang', $lang)
-                        ->first();
-
+                ? $category->children->map(function ($subCategory) use ($fields, $withChildrenCount) {
                     return [
                         'id' => $subCategory->id,
-                        'name' => $translation ? $translation->name : $subCategory->name,
+                        'name' => $subCategory->name,
                         'banner' => api_asset($subCategory->banner),
                         'icon' => api_asset($subCategory->icon),
-                        'number_of_children' => CategoryUtility::get_immediate_children_count($subCategory->id),
-                        'links' => [
-                            'products' => route('api.products.category', $subCategory->id),
-                        ],
+                        'number_of_children' => $withChildrenCount ? CategoryUtility::get_immediate_children_count($subCategory->id) : 0,
                         'sub_sub_categories' => $subCategory->children
-                            ? $subCategory->children->map(function ($subSubCategory) use ($lang, $fields) {
-                                $translation = $subSubCategory->translations
-                                    ->where('lang', $lang)
-                                    ->first();
-
+                            ? $subCategory->children->map(function ($subSubCategory) use ($fields, $withChildrenCount) {
                                 return [
                                     'id' => $subSubCategory->id,
-                                    'name' => $translation ? $translation->name : $subSubCategory->name,
+                                    'name' => $subSubCategory->name,
                                     'banner' => api_asset($subSubCategory->banner),
                                     'icon' => api_asset($subSubCategory->icon),
-                                    'number_of_children' => CategoryUtility::get_immediate_children_count($subSubCategory->id),
-                                    'links' => [
-                                        'products' => route('api.products.category', $subSubCategory->id),
-                                    ],
+                                    'number_of_children' => $withChildrenCount ? CategoryUtility::get_immediate_children_count($subSubCategory->id) : 0,
                                 ];
                             })
                             : [],

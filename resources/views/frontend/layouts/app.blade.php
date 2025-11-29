@@ -1,9 +1,5 @@
 <!DOCTYPE html>
-@if(\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
-<html dir="rtl" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-@else
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-@endif
 <head>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -68,9 +64,6 @@ src="https://www.facebook.com/tr?id=2355381278153504&ev=PageView&noscript=1"
 
     <!-- CSS Files -->
     <link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
-    @if(\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
-    <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
-    @endif
     <link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css') }}">
     <link rel="stylesheet" href="{{ static_asset('assets/css/custom-style.css') }}">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -253,7 +246,6 @@ src="https://www.facebook.com/tr?id=2355381278153504&ev=PageView&noscript=1"
   
 
 
-
     @if (get_setting('facebook_chat') == 1)
         <script type="text/javascript">
             window.fbAsyncInit = function() {
@@ -297,19 +289,6 @@ src="https://www.facebook.com/tr?id=2355381278153504&ev=PageView&noscript=1"
                     }
                 });
             });
-            if ($('#lang-change').length > 0) {
-                $('#lang-change .dropdown-menu a').each(function() {
-                    $(this).on('click', function(e){
-                        e.preventDefault();
-                        var $this = $(this);
-                        var locale = $this.data('flag');
-                        $.post('{{ route('language.change') }}',{_token: AIZ.data.csrf, locale:locale}, function(data){
-                            location.reload();
-                        });
-
-                    });
-                });
-            }
 
             if ($('#currency-change').length > 0) {
                 $('#currency-change .dropdown-menu a').each(function() {

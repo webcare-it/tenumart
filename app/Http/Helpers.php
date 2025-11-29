@@ -449,39 +449,8 @@ if (!function_exists('renderStarRating')) {
 
 function translate($key, $lang = null)
 {
-    if($lang == null){
-        $lang = App::getLocale();
-    }
-
-    $lang_key = preg_replace('/[^A-Za-z0-9\_]/', '', str_replace(' ', '_', strtolower($key)));
-
-    $translations_default = Cache::rememberForever('translations-'.env('DEFAULT_LANGUAGE', 'en'), function () {
-        return Translation::where('lang', env('DEFAULT_LANGUAGE', 'en'))->pluck('lang_value', 'lang_key')->toArray();
-    });
-
-    if(!isset($translations_default[$lang_key])){
-        $translation_def = new Translation;
-        $translation_def->lang = env('DEFAULT_LANGUAGE', 'en');
-        $translation_def->lang_key = $lang_key;
-        $translation_def->lang_value = $key;
-        $translation_def->save();
-        Cache::forget('translations-'.env('DEFAULT_LANGUAGE', 'en'));
-    }
-
-    $translation_locale = Cache::rememberForever('translations-'.$lang, function () use ($lang) {
-        return Translation::where('lang', $lang)->pluck('lang_value', 'lang_key')->toArray();
-    });
-
-    //Check for session lang
-    if(isset($translation_locale[$lang_key])){
-        return $translation_locale[$lang_key];
-    }
-    elseif(isset($translations_default[$lang_key])){
-        return $translations_default[$lang_key];
-    }
-    else{
-        return $key;
-    }
+    // Return the key directly without translation when translation system is off
+    return $key;
 }
 
 function remove_invalid_charcaters($str)
@@ -857,3 +826,55 @@ if (!function_exists('addon_is_activated')) {
         return $activation == null ? false : true;
     }
 }
+
+// Add unified helper function for generating order codes
+if (!function_exists('generate_order_code')) {
+    /**
+     * Generate an order code based on domain name and a 6-digit number
+     * Format: domain-000001
+     * 
+     * @param int|null $number The number to append (will be zero-padded to 6 digits). 
+     *                         If null, will auto-increment based on Order model count.
+     * @param string $modelClass The Eloquent model class to use for counting orders (when auto-incrementing)
+     * @return string
+     */
+    function generate_order_code($number = null, $modelClass = '\App\Models\Order')
+    {
+        // If no number provided, auto-increment based on model count
+        if ($number === null) {
+            try {
+                // Try to get count from the model
+                $number = $modelClass::count() + 1;
+            } catch (\Exception $e) {
+                // If there's an error (e.g., table doesn't exist yet), default to 1
+                $number = 1;
+            }
+        }
+        
+        // Get the APP_URL from environment
+        $appUrl = env('APP_URL', 'http://localhost');
+        
+        // Parse the URL to get the host
+        $parsedUrl = parse_url($appUrl);
+        $host = isset($parsedUrl['host']) ? $parsedUrl['host'] : 'localhost';
+        
+        // Remove www. prefix if present
+        $host = preg_replace('/^www\./', '', $host);
+        
+        // Extract domain name (remove TLD)
+        $domainParts = explode('.', $host);
+        if (count($domainParts) > 1) {
+            // Take the second to last part as the domain name (handles subdomains)
+            $domain = $domainParts[count($domainParts) - 2];
+        } else {
+            $domain = $host;
+        }
+        
+        // Format the number to 6 digits with leading zeros
+        $formattedNumber = str_pad($number, 4, '0', STR_PAD_LEFT);
+        
+        // Return the formatted code
+        return $domain . '-' . $formattedNumber;
+    }
+}
+

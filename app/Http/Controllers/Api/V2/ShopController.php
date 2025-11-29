@@ -16,11 +16,10 @@ class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $lang = $request->get('lang', app()->getLocale());
         $name = $request->name;
         
-        // Create cache key based on parameters
-        $cacheKey = 'app.shops_' . $lang;
+        // Simplified cache key without language
+        $cacheKey = 'app.shops';
         if ($name) {
             $cacheKey .= '_' . md5($name);
         }

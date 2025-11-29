@@ -83,7 +83,7 @@ class OrderController extends Controller
         $sort_search = null;
         $delivery_status = null;
 
-        $orders = Order::orderBy('id', 'desc');
+        $orders = Order::with('orderDetails.product')->orderBy('id', 'desc');
         if ($request->has('search')) {
             $sort_search = $request->search;
             $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
@@ -348,7 +348,7 @@ class OrderController extends Controller
             $order->payment_type = $request->payment_option;
             $order->delivery_viewed = '0';
             $order->payment_status_viewed = '0';
-            $order->code = date('Ymd-His') . rand(10, 99);
+            $order->code = generate_order_code();
             $order->date = strtotime('now');
             $order->save();
 
@@ -504,7 +504,7 @@ class OrderController extends Controller
             $order->payment_type = "cash_on_delivery";
             $order->delivery_viewed = '0';
             $order->payment_status_viewed = '0';
-            $order->code = date('Ymd-His') . rand(10, 99);
+            $order->code = generate_order_code();
             $order->date = strtotime('now');
             $order->save();
 
@@ -632,7 +632,8 @@ class OrderController extends Controller
      */
     public function edit($id)
     {
-        //
+        $order = Order::findOrFail($id);
+        return view('backend.sales.all_orders.edit', compact('order'));
     }
 
     /**
@@ -644,7 +645,55 @@ class OrderController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $order = Order::findOrFail($id);
+        
+        // Update customer information
+        $shipping_address = json_decode($order->shipping_address, true);
+        if ($shipping_address) {
+            $shipping_address['name'] = $request->customer_name;
+            $shipping_address['email'] = $request->customer_email;
+            $shipping_address['phone'] = $request->customer_phone;
+            $shipping_address['address'] = $request->customer_address;
+            $order->shipping_address = json_encode($shipping_address);
+        }
+        
+        // Update order status
+        $order->payment_status = $request->payment_status;
+        $order->delivery_status = $request->delivery_status;
+        $order->tracking_code = $request->tracking_code;
+        $order->notes = $request->note;
+        
+        // Update order details (quantity, price, discount)
+        $subtotal = 0;
+        if ($request->has('order_details')) {
+            foreach ($request->order_details as $orderDetailData) {
+                $orderDetail = OrderDetail::find($orderDetailData['id']);
+                if ($orderDetail) {
+                    $quantity = (int) $orderDetailData['quantity'];
+                    $unitPrice = (float) $orderDetailData['price'];
+                    $discount = (float) ($orderDetailData['discount'] ?? 0);
+                    
+                    // Update order detail
+                    $orderDetail->quantity = $quantity;
+                    $orderDetail->price = $unitPrice * $quantity - $discount;
+                    $orderDetail->save();
+                    
+                    // Add to subtotal
+                    $subtotal += $orderDetail->price;
+                }
+            }
+        }
+        
+        // Update order grand total
+        $order->grand_total = $subtotal + ($order->shipping_cost ?? 0) + ($order->tax ?? 0);
+        
+        if ($order->save()) {
+            flash(translate('Order has been updated successfully'))->success();
+        } else {
+            flash(translate('Something went wrong'))->error();
+        }
+        
+        return redirect()->route('all_orders.index');
     }
 
     /**
@@ -706,7 +755,7 @@ class OrderController extends Controller
 
     $shippingCharge = $order->orderDetails()->sum('shipping_cost');
 
-    if ($request->status === 'transfered') {
+    if ($request->delivery_status === 'transfered') {
         // All transferable products (those that have b_product_id)
         $transferable = $order->orderDetails()->whereHas('product', function ($q) {
             $q->whereNotNull('b_product_id');
@@ -728,7 +777,7 @@ class OrderController extends Controller
             $order_shipping_address = json_decode($order->shipping_address);
 
             $payload = [
-                'invoice_number'        => "globalmart" . '-' . ($order->code ?? $order->id),
+                'invoice_number'        => ($order->code ?? $order->id),
                 'customer_name'         => $order_shipping_address->name,
                 'customer_phone'        => $order_shipping_address->phone,
                 'delivery_cost'         => (int) $shippingCharge,
@@ -740,7 +789,7 @@ class OrderController extends Controller
                 'delivery_charge_type'  => 'COD',
                 'payment_type'          => 'wallet',
                 'order_type'            => 'Dropshipping',
-                'special_notes'         => $order->note ?? 'N/A',
+                'special_notes'         => $order->notes ?? $request->note ?? "No notes provided",
                 'payment_gateway'       => $order->payment_type ?? 'N/A',
                 'transaction_id'        => $order->payment_details ?? null,
                 'products'              => $order->orderDetails->map(function ($detail) {

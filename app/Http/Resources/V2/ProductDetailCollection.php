@@ -10,11 +10,8 @@ class ProductDetailCollection extends ResourceCollection
 {
     public function toArray($request)
     {
-        // Detect language from API request or use default app locale
-        $lang = $request->get('lang', app()->getLocale());
-
         return [
-            'data' => $this->collection->map(function ($data) use ($lang) {
+            'data' => $this->collection->map(function ($data) {
                 $precision = 2;
                 $calculable_price = home_discounted_base_price($data, false);
                 $calculable_price = number_format($calculable_price, $precision, '.', '');
@@ -43,7 +40,7 @@ class ProductDetailCollection extends ResourceCollection
                     }
                 }
 
-                // --- Brand (multilingual) ---
+                // --- Brand ---
                 $brand = [
                     'id' => 0,
                     'name' => "",
@@ -51,34 +48,26 @@ class ProductDetailCollection extends ResourceCollection
                 ];
 
                 if ($data->brand) {
-                    $brandTranslation = $data->brand->translations
-                        ->where('lang', $lang)
-                        ->first();
-
                     $brand = [
                         'id' => $data->brand->id,
-                        'name' => $brandTranslation ? $brandTranslation->name : $data->brand->name,
+                        'name' => $data->brand->name,
                         'logo' => api_asset($data->brand->logo),
                     ];
                 }
 
-                // --- Product name & description (multilingual) ---
-                $productTranslation = $data->translations
-                    ->where('lang', $lang)
-                    ->first();
-
-                $translatedName = $productTranslation ? $productTranslation->name : $data->name;
-                $translatedDescription = $productTranslation ? $productTranslation->description : $data->description;
+                // --- Product name & description ---
+                $translatedName = $data->name;
+                $translatedDescription = $data->description;
 
                 return [
                     'id' => (integer)$data->id,
                     'name' => $translatedName,
                     'slug' => $data->slug,
                     'added_by' => $data->added_by,
-                    'category_name' => $translation->name ?? $data->category->getTranslation('name', $lang),
+                    'category_name' => $data->category->name,
                     'seller_id' => $data->user->id ?? "",
                     'shop_id' => $data->added_by == 'admin' ? 0 : $data->user->shop->id,
-                    'shop_name' => $data->added_by == 'admin' ? translate('In House Product') : $data->user->shop->name,
+                    'shop_name' => $data->added_by == 'admin' ? 'In House Product' : $data->user->shop->name,
                     'shop_logo' => $data->added_by == 'admin' ? api_asset(get_setting('header_logo')) : api_asset($data->user->shop->logo),
                     'photos' => $photos,
                     'thumbnail_image' => api_asset($data->thumbnail_img),
@@ -86,7 +75,7 @@ class ProductDetailCollection extends ResourceCollection
                     'price_high_low' => (double)explode('-', home_discounted_base_price($data, false))[0] == (double)explode('-', home_discounted_price($data, false))[1]
                         ? format_price((double)explode('-', home_discounted_price($data, false))[0])
                         : "From " . format_price((double)explode('-', home_discounted_price($data, false))[0]) . " to " . format_price((double)explode('-', home_discounted_price($data, false))[1]),
-                    'choice_options' => $this->convertToChoiceOptions(json_decode($data->choice_options), $lang),
+                    'choice_options' => $this->convertToChoiceOptions(json_decode($data->choice_options)),
                     'colors' => json_decode($data->colors),
                     'has_discount' => home_base_price($data, false) != home_discounted_base_price($data, false),
                     'stroked_price' => home_base_price($data),
@@ -117,20 +106,16 @@ class ProductDetailCollection extends ResourceCollection
         ];
     }
 
-    // 🧩 Updated to support multilingual attribute names
-    protected function convertToChoiceOptions($data, $lang)
+    // Updated to remove multilingual support
+    protected function convertToChoiceOptions($data)
     {
         $result = [];
         if ($data) {
             foreach ($data as $choice) {
-                $attribute = Attribute::with('translations')->find($choice->attribute_id);
-
-                $attributeTranslation = $attribute?->translations
-                    ->where('lang', $lang)
-                    ->first();
+                $attribute = Attribute::find($choice->attribute_id);
 
                 $item['name'] = $choice->attribute_id;
-                $item['title'] = $attributeTranslation ? $attributeTranslation->name : $attribute->name;
+                $item['title'] = $attribute->name;
                 $item['options'] = $choice->values;
                 $result[] = $item;
             }

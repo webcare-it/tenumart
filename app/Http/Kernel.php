@@ -7,7 +7,7 @@ use App\Http\Middleware\IsSeller;
 use App\Http\Middleware\IsUser;
 use App\Http\Middleware\CheckoutMiddleware;
 use App\Http\Middleware\IsUnbanned;
-use App\Http\Middleware\AppLanguage;
+// use App\Http\Middleware\AppLanguage;
 use App\Http\Middleware\ApiCacheHeaders;
 use App\Http\Middleware\RestrictFrontendAccess;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
@@ -43,7 +43,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\Language::class,
+            // \App\Http\Middleware\Language::class,  // Removed reference to missing middleware
             \App\Http\Middleware\HttpsProtocol::class,
             \App\Http\Middleware\CheckForMaintenanceMode::class,
             // \App\Http\Middleware\RestrictFrontendAccess::class, // Add our new middleware
@@ -64,7 +64,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'app_language' => AppLanguage::class,
+        // 'app_language' => AppLanguage::class,  // Removed reference to missing middleware
         'admin' => IsAdmin::class,
         'seller' => IsSeller::class,
         'user' => IsUser::class,

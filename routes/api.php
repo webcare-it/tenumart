@@ -1,6 +1,6 @@
 <?php
 
-Route::group(['prefix' => 'v2/auth', 'middleware' => ['app_language']], function() {
+Route::group(['prefix' => 'v2/auth'], function() {
     Route::post('login', 'Api\V2\AuthController@login');
     Route::post('signup', 'Api\V2\AuthController@signup');
     Route::post('social-login', 'Api\V2\AuthController@socialLogin');
@@ -16,7 +16,7 @@ Route::group(['prefix' => 'v2/auth', 'middleware' => ['app_language']], function
     });
 });
 
-Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
+Route::group(['prefix' => 'v2'], function() {
     Route::prefix('delivery-boy')->group(function () {
         Route::get('dashboard-summary/{id}', 'Api\V2\DeliveryBoyController@dashboard_summary')->middleware('auth:sanctum');
         Route::get('deliveries/completed/{id}', 'Api\V2\DeliveryBoyController@completed_delivery')->middleware('auth:sanctum');
@@ -34,7 +34,7 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
 
 
     Route::get('get-search-suggestions', 'Api\V2\SearchSuggestionController@getList')->middleware('api.cache');
-    Route::get('languages', 'Api\V2\LanguageController@getList')->middleware('api.cache');
+    // Route::get('languages', 'Api\V2\LanguageController@getList')->middleware('api.cache');  // Removed language route
 
     Route::get('chat/conversations/{id}', 'Api\V2\ChatController@conversations')->middleware('auth:sanctum');
     Route::get('chat/messages/{id}', 'Api\V2\ChatController@messages')->middleware('auth:sanctum');
@@ -68,9 +68,6 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
     Route::apiResource('home-categories', 'Api\V2\HomeCategoryController')->only('index');
 
     Route::get('home/categories/products', 'Api\V2\HomeCategoryController@homeCategoriesProducts')->middleware('api.cache');
-
-    Route::get('translations/{lang?}', 'Api\V2\TranslationController@getTranslations');
-    Route::post('translations/save', 'Api\V2\TranslationController@store');
 
     //Route::get('purchase-history/{id}', 'Api\V2\PurchaseHistoryController@index')->middleware('auth:sanctum');
     //Route::get('purchase-history-details/{id}', 'Api\V2\PurchaseHistoryDetailController@index')->name('purchaseHistory.details')->middleware('auth:sanctum');
@@ -258,6 +255,11 @@ Route::group(['prefix' => 'v2', 'middleware' => ['app_language']], function() {
     // Landing Pages
     Route::apiResource('landing-pages', 'Api\V2\LandingPageController')->only(['index', 'show'])->middleware('api.cache');
     Route::get('landing-pages/slug/{slug}', 'Api\V2\LandingPageController@showBySlug')->middleware('api.cache');
+    
+    // Metadata API
+    Route::get('metadata', 'Api\V2\MetadataController@index');
+    Route::get('site-info', 'Api\V2\MetadataController@getSiteInfo');
+    Route::get('meta-image', 'Api\V2\MetadataController@getMetaImage');
     
     // Pages - Read-only API for React application
     Route::apiResource('pages', 'Api\PageController')->only(['index', 'show'])->middleware('api.cache');

@@ -10,32 +10,22 @@
     <div class="col-lg-8 mx-auto">
         <div class="card">
             <div class="card-body p-0">
-                <ul class="nav nav-tabs nav-fill border-light">
-      				@foreach (\App\Models\Language::all() as $key => $language)
-      					<li class="nav-item">
-      						<a class="nav-link text-reset @if ($language->code == $lang) active @else bg-soft-dark border-light border-left-0 @endif py-3" href="{{ route('pick_up_points.edit', ['id'=>$pickup_point->id, 'lang'=> $language->code] ) }}">
-      							<img src="{{ static_asset('assets/img/flags/'.$language->code.'.png') }}" height="11" class="mr-1">
-      							<span>{{$language->name}}</span>
-      						</a>
-      					</li>
-  		            @endforeach
-      			</ul>
 
                 <form class="p-4" action="{{ route('pick_up_points.update',$pickup_point->id) }}" method="POST">
                 	<input name="_method" type="hidden" value="PATCH">
-                    <input type="hidden" name="lang" value="{{ $lang }}">
+                    <input type="hidden" name="lang" value="en">
                     @csrf
 
                     <div class="form-group row">
-                        <label class="col-sm-3 col-from-label" for="name">{{translate('Name')}} <i class="las la-language text-danger" title="{{translate('Translatable')}}"></i></label>
+                        <label class="col-sm-3 col-from-label" for="name">{{translate('Name')}}</label>
                         <div class="col-sm-9">
-                            <input type="text" placeholder="{{translate('Name')}}" id="name" name="name" value="{{ $pickup_point->getTranslation('name', $lang) }}" class="form-control" required>
+                            <input type="text" placeholder="{{translate('Name')}}" id="name" name="name" value="{{ $pickup_point->name }}" class="form-control" required>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-from-label" for="address">{{translate('Location')}} <i class="las la-language text-danger" title="{{translate('Translatable')}}"></i></label>
+                        <label class="col-sm-3 col-from-label" for="address">{{translate('Location')}}</label>
                         <div class="col-sm-9">
-                            <textarea name="address" rows="8" class="form-control" required>{{ $pickup_point->getTranslation('address', $lang) }}</textarea>
+                            <textarea name="address" rows="8" class="form-control" required>{{ $pickup_point->address }}</textarea>
                         </div>
                     </div>
                     <div class="form-group row">

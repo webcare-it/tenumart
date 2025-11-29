@@ -46,10 +46,20 @@
     <br>
 
     <div class="card">
-        <form class="" id="sort_products" action="" method="GET">
+        <form class="" id="sort_products" action="{{ route('droploo.products.all') }}" method="GET">
             <div class="card-header row gutters-5">
                 <div class="col">
                     <h5 class="mb-md-0 h6">{{ translate('Droploo All Product') }}</h5>
+                </div>
+                <div class="col-auto">
+                    <div class="form-group mb-0">
+                        <input type="text" class="form-control" id="search" name="search" @isset($sort_search) value="{{ $sort_search }}" @endisset placeholder="{{ translate('Search by product name') }}">
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="form-group mb-0">
+                        <button type="submit" class="btn btn-primary">{{ translate('Search') }}</button>
+                    </div>
                 </div>
             </div>
 

@@ -3,6 +3,7 @@
 namespace App\Utility;
 
 use App\Models\Category;
+use Cache;
 
 class CategoryUtility
 {
@@ -26,7 +27,12 @@ class CategoryUtility
 
     public static function get_immediate_children_count($id, $with_trashed = false)
     {
-        return $with_trashed ? Category::where('parent_id', $id)->count() : Category::where('parent_id', $id)->count();
+        // Add caching to improve performance
+        $cacheKey = "category_children_count_{$id}_" . ($with_trashed ? '1' : '0');
+        
+        return Cache::remember($cacheKey, 3600, function() use ($id, $with_trashed) {
+            return $with_trashed ? Category::where('parent_id', $id)->count() : Category::where('parent_id', $id)->count();
+        });
     }
 
     /*when with trashed is true id will get even the deleted items*/

@@ -19,27 +19,20 @@ class HomeCategoryController extends Controller
             $category_ids = [];
         }
         
-        // Get language from request or use default
-        $lang = $request->get('lang', app()->getLocale());
-        
         // Get the actual categories with their data
         $categories = Category::whereIn('id', $category_ids)->get();
         
         // Transform the data to match what HomeCategoryCollection expects
         $groupedData = [];
         foreach ($categories as $category) {
-            // Get translated category name
-            $translation = $category->translations->where('lang', $lang)->first();
-            $categoryName = $translation ? $translation->name : $category->name;
+            // Use category name directly without translation
+            $categoryName = $category->name;
             
             $groupedData[] = [
                 'name' => $categoryName,
                 'banner' => $category->banner ? api_asset($category->banner) : null,
                 'icon' => $category->icon ? api_asset($category->icon) : null,
-                'links' => [
-                    'products' => route('api.products.category', $category->id),
-                    'sub_categories' => route('subCategories.index', $category->id)
-                ]
+                
             ];
         }
         
@@ -73,9 +66,6 @@ class HomeCategoryController extends Controller
                 $category_ids = [];
             }
 
-            // Get language from request or use default
-            $lang = $request->get('lang', app()->getLocale());
-
             // Get categories with their products including subcategories and sub-subcategories
             $result = [];
             $categories = Category::whereIn('id', $category_ids)->get();
@@ -103,9 +93,8 @@ class HomeCategoryController extends Controller
                 
                 $products = $productsQuery->latest()->paginate(10);
                 
-                // Get translated category name
-                $translation = $category->translations->where('lang', $lang)->first();
-                $categoryName = $translation ? $translation->name : $category->name;
+                // Use category name directly without translation
+                $categoryName = $category->name;
                 
                 $result[] = [
                     'categoryId' => $category->id,

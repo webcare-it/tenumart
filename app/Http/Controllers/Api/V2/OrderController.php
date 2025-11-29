@@ -127,7 +127,7 @@ class OrderController extends Controller
             $order->notes = $request->notes;
             $order->delivery_viewed = '0';
             $order->payment_status_viewed = '0';
-            $order->code = date('Ymd-His') . rand(10, 99);
+            $order->code = generate_order_code();
             $order->date = strtotime('now');
             if($set_paid){
                 $order->payment_status = 'paid';

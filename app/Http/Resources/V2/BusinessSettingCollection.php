@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\V2;
 
-use App\Models\Language;
+// use App\Models\Language;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class BusinessSettingCollection extends ResourceCollection
@@ -41,7 +41,7 @@ class BusinessSettingCollection extends ResourceCollection
     return [
         'data'    => $formattedData,
         'google_client_id' => env('GOOGLE_CLIENT_ID'),
-        'languages' => new LanguageCollection(Language::all()),
+        // 'languages' => new LanguageCollection(Language::all()),  // Removed language system
         'success' => true,
         'status'  => 200,
     ];

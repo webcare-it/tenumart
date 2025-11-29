@@ -25,6 +25,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     Route::get('/categories/edit/{id}', 'CategoryController@edit')->name('categories.edit');
     Route::get('/categories/destroy/{id}', 'CategoryController@destroy')->name('categories.destroy');
     Route::post('/categories/featured', 'CategoryController@updateFeatured')->name('categories.featured');
+    Route::post('/bulk-category-delete', 'CategoryController@bulk_delete')->name('categories.bulk-delete');
 
     Route::resource('brands', 'BrandController');
     Route::get('/brands/edit/{id}', 'BrandController@edit')->name('brands.edit');
@@ -36,6 +37,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     Route::get('/products/create', 'ProductController@create')->name('products.create');
     Route::get('/products/admin/{id}/edit', 'ProductController@admin_product_edit')->name('products.admin.edit');
     Route::get('/products/seller/{id}/edit', 'ProductController@seller_product_edit')->name('products.seller.edit');
+    Route::post('/products/edit', 'ProductController@edit')->name('products.edit');
     Route::post('/products/todays_deal', 'ProductController@updateTodaysDeal')->name('products.todays_deal');
     Route::post('/products/featured', 'ProductController@updateFeatured')->name('products.featured');
     Route::post('/products/approved', 'ProductController@updateProductApproval')->name('products.approved');
@@ -118,18 +120,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     Route::post('/verification/form', 'BusinessSettingsController@seller_verification_form_update')->name('seller_verification_form.update');
     Route::get('/vendor_commission', 'BusinessSettingsController@vendor_commission')->name('business_settings.vendor_commission');
     Route::post('/vendor_commission_update', 'BusinessSettingsController@vendor_commission_update')->name('business_settings.vendor_commission.update');
-
-    Route::resource('/languages', 'LanguageController');
-    Route::post('/languages/{id}/update', 'LanguageController@update')->name('languages.update');
-    Route::get('/languages/destroy/{id}', 'LanguageController@destroy')->name('languages.destroy');
-    Route::post('/languages/update_rtl_status', 'LanguageController@update_rtl_status')->name('languages.update_rtl_status');
-    Route::post('/languages/key_value_store', 'LanguageController@key_value_store')->name('languages.key_value_store');
-
-    //App Trasnlation
-    Route::post('/languages/app-translations/import', 'LanguageController@importEnglishFile')->name('app-translations.import');
-    Route::get('/languages/app-translations/show/{id}', 'LanguageController@showAppTranlsationView')->name('app-translations.show');
-    Route::post('/languages/app-translations/key_value_store', 'LanguageController@storeAppTranlsation')->name('app-translations.store');
-    Route::get('/languages/app-translations/export/{id}', 'LanguageController@exportARBFile')->name('app-translations.export');
 
     // website setting
     Route::group(['prefix' => 'website'], function() {

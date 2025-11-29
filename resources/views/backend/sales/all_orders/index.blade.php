@@ -37,6 +37,21 @@
                         <div class="modal-body">
                             <select class="form-control aiz-selectpicker" onchange="change_status()" data-minimum-results-for-search="Infinity" id="update_delivery_status">
                                 <option value="pending">{{translate('Pending')}}</option>
+                                {{-- Check if any order has products with b_product_id --}}
+                                @php
+                                    $hasBProductId = false;
+                                    foreach ($orders as $order) {
+                                        if ($order->orderDetails->contains(function ($orderDetail) {
+                                            return $orderDetail->product && $orderDetail->product->b_product_id;
+                                        })) {
+                                            $hasBProductId = true;
+                                            break;
+                                        }
+                                    }
+                                @endphp
+                                @if($hasBProductId)
+                                <option value="transfered">{{translate('Transfered')}}</option>
+                                @endif
                                 <option value="confirmed">{{translate('Confirmed')}}</option>
                                 <option value="picked_up">{{translate('Picked Up')}}</option>
                                 <option value="on_the_way">{{translate('On The Way')}}</option>
@@ -56,6 +71,10 @@
                 <select class="form-control aiz-selectpicker" name="delivery_status" id="delivery_status">
                     <option value="">{{translate('Filter by Delivery Status')}}</option>
                     <option value="pending" @if ($delivery_status == 'pending') selected @endif>{{translate('Pending')}}</option>
+                    {{-- For filter dropdown, we show Transfered option if any order has b_product_id --}}
+                    @if($hasBProductId)
+                    <option value="transfered" @if ($delivery_status == 'transfered') selected @endif>{{translate('Transfered')}}</option>
+                    @endif
                     <option value="confirmed" @if ($delivery_status == 'confirmed') selected @endif>{{translate('Confirmed')}}</option>
                     <option value="picked_up" @if ($delivery_status == 'picked_up') selected @endif>{{translate('Picked Up')}}</option>
                     <option value="on_the_way" @if ($delivery_status == 'on_the_way') selected @endif>{{translate('On The Way')}}</option>
@@ -169,6 +188,9 @@
                         <td class="text-right">
                             <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('all_orders.show', encrypt($order->id))}}" title="{{ translate('View') }}">
                                 <i class="las la-eye"></i>
+                            </a>
+                            <a class="btn btn-soft-info btn-icon btn-circle btn-sm" href="{{ route('orders.edit', $order->id) }}" title="{{ translate('Edit') }}">
+                                <i class="las la-edit"></i>
                             </a>
                             <a class="btn btn-soft-info btn-icon btn-circle btn-sm" href="{{ route('invoice.download', $order->id) }}" title="{{ translate('Download Invoice') }}">
                                 <i class="las la-download"></i>

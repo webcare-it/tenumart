@@ -10,6 +10,14 @@ class GeneralSettingCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(function($data) {
+                // Handle meta image
+                $metaImage = null;
+                $metaImageUrl = null;
+                if (isset($data->meta_image)) {
+                    $metaImage = $data->meta_image;
+                    $metaImageUrl = $metaImage ? api_asset($metaImage) : null;
+                }
+                
                 return [
                     'logo' => $data->logo,
                     'site_name' => $data->site_name,
@@ -21,7 +29,11 @@ class GeneralSettingCollection extends ResourceCollection
                     'twitter' => $data->twitter,
                     'instagram' => $data->instagram,
                     'youtube' => $data->youtube,
-                    'google_plus' => $data->google_plus
+                    'google_plus' => $data->google_plus,
+                    'meta_image' => $metaImage,
+                    'meta_image_url' => $metaImageUrl,
+                    'meta_title' => $data->meta_title ?? null,
+                    'meta_keywords' => $data->meta_keywords ?? null
                 ];
             })
         ];

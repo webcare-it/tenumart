@@ -13,6 +13,7 @@ use App\Models\AttributeValue;
 use App\Models\Cart;
 use App\Models\Color;
 use App\Models\User;
+use App\Models\Attribute;
 use Auth;
 use Carbon\Carbon;
 use Combinations;
@@ -152,6 +153,38 @@ class ProductController extends Controller
         }
 
         echo json_encode($html);
+    }
+
+    public function edit(Request $request) {
+        $choices = $request->choices;
+        $product = Product::find($request->id);
+        
+        $html = '';
+        
+        foreach ($choices as $key => $attribute_id) {
+            $attribute = Attribute::find($attribute_id);
+            if ($attribute) {
+                $html .= '<div class="col-lg-3">';
+                $html .= '<input type="hidden" name="choice_no[]" value="' . $attribute->id . '">';
+                $html .= '<input type="text" class="form-control" value="' . $attribute->getTranslation('name') . '" placeholder="' . translate('Choice Title') . '" disabled>';
+                $html .= '</div>';
+                $html .= '<div class="col-lg-8">';
+                $html .= '<select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_' . $attribute->id . '[]" multiple>';
+                
+                foreach ($attribute->attribute_values as $key => $attribute_value) {
+                    $selected = '';
+                    if (isset($product->choice_options) && in_array($attribute_value->value, json_decode($product->choice_options)->{$attribute->id} ?? [])) {
+                        $selected = ' selected';
+                    }
+                    $html .= '<option value="' . $attribute_value->value . '"' . $selected . '>' . $attribute_value->value . '</option>';
+                }
+                
+                $html .= '</select>';
+                $html .= '</div>';
+            }
+        }
+        
+        return $html;
     }
 
     /**
@@ -468,6 +501,11 @@ class ProductController extends Controller
     $sort_search = null;
     $type = 'All';
 
+    // Handle search
+    if ($request->has('search') && $request->search != null) {
+        $sort_search = $request->search;
+    }
+
     try {
         $response = Http::withHeaders([
             'App-Secret' => $appSecret,
@@ -486,6 +524,14 @@ class ProductController extends Controller
 
             $products = $responseData['products'] ?? [];
             $imagePath = $responseData['imagePath'] ?? '';
+
+            // Filter products by search term if provided
+            if ($sort_search != null) {
+                $collection = collect($products);
+                $products = $collection->filter(function ($product) use ($sort_search) {
+                    return stripos($product['name'], $sort_search) !== false;
+                })->values()->all();
+            }
 
             // ✅ Convert array to Laravel collection and manually paginate
             $currentPage = LengthAwarePaginator::resolveCurrentPage();

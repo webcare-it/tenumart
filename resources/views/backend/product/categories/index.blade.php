@@ -14,22 +14,43 @@
     </div>
 </div>
 <div class="card">
-    <div class="card-header d-block d-md-flex">
-        <h5 class="mb-0 h6">{{ translate('Categories') }}</h5>
-        <form class="" id="sort_categories" action="" method="GET">
-            <div class="box-inline pad-rgt pull-left">
-                <div class="" style="min-width: 200px;">
+    <form class="" action="" id="sort_categories" method="GET">
+        <div class="card-header row gutters-5">
+            <div class="col">
+                <h5 class="mb-md-0 h6">{{ translate('Categories') }}</h5>
+            </div>
+
+            <div class="dropdown mb-2 mb-md-0">
+                <button class="btn border dropdown-toggle" type="button" data-toggle="dropdown">
+                    {{translate('Bulk Action')}}
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="#" onclick="bulk_delete()"> {{translate('Delete selection')}}</a>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group mb-0">
                     <input type="text" class="form-control" id="search" name="search"@isset($sort_search) value="{{ $sort_search }}" @endisset placeholder="{{ translate('Type name & Enter') }}">
                 </div>
             </div>
-        </form>
-    </div>
-    <div class="card-body">
-        <table class="table aiz-table mb-0">
-            <thead>
-                <tr>
-                    <th data-breakpoints="lg">#</th>
-                    <th>{{translate('Name')}}</th>
+        </div>
+        <div class="card-body">
+            <table class="table aiz-table mb-0">
+                <thead>
+                    <tr>
+                        <th>
+                            <div class="form-group">
+                                <div class="aiz-checkbox-inline">
+                                    <label class="aiz-checkbox">
+                                        <input type="checkbox" class="check-all">
+                                        <span class="aiz-square-check"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </th>
+                        <th data-breakpoints="lg">#</th>
+                        <th>{{translate('Name')}}</th>
                     <th data-breakpoints="lg">{{ translate('Parent Category') }}</th>
                     <th data-breakpoints="lg">{{ translate('Order Level') }}</th>
                     <th data-breakpoints="lg">{{ translate('Level') }}</th>
@@ -40,9 +61,20 @@
                     <th width="10%" class="text-right">{{translate('Options')}}</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach($categories as $key => $category)
+                </thead>
+                <tbody>
+                    @foreach($categories as $key => $category)
                     <tr>
+                        <td>
+                            <div class="form-group">
+                                <div class="aiz-checkbox-inline">
+                                    <label class="aiz-checkbox">
+                                        <input type="checkbox" class="check-one" name="id[]" value="{{$category->id}}">
+                                        <span class="aiz-square-check"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </td>
                         <td>{{ ($key+1) + ($categories->currentPage() - 1)*$categories->perPage() }}</td>
                         <td>{{ $category->getTranslation('name') }}</td>
                         <td>
@@ -89,13 +121,14 @@
                             </a>
                         </td>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <div class="aiz-pagination">
-            {{ $categories->appends(request()->input())->links() }}
+                    @endforeach
+                </tbody>
+            </table>
+            <div class="aiz-pagination">
+                {{ $categories->appends(request()->input())->links() }}
+            </div>
         </div>
-    </div>
+    </form>
 </div>
 @endsection
 
@@ -107,6 +140,39 @@
 
 @section('script')
     <script type="text/javascript">
+        $(document).on("change", ".check-all", function() {
+            if(this.checked) {
+                // Iterate each checkbox
+                $('.check-one:checkbox').each(function() {
+                    this.checked = true;
+                });
+            } else {
+                $('.check-one:checkbox').each(function() {
+                    this.checked = false;
+                });
+            }
+        });
+
+        function bulk_delete() {
+            var data = new FormData($('#sort_categories')[0]);
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{route('categories.bulk-delete')}}",
+                type: 'POST',
+                data: data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if(response == 1) {
+                        location.reload();
+                    }
+                }
+            });
+        }
+
         function update_featured(el){
             if(el.checked){
                 var status = 1;

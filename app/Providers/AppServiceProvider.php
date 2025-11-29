@@ -26,6 +26,6 @@ class AppServiceProvider extends ServiceProvider
    */
   public function register()
   {
-    //
+    // We're handling the translator service in our custom TranslationServiceProvider
   }
 }

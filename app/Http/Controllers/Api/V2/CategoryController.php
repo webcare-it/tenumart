@@ -13,33 +13,22 @@ class CategoryController extends Controller
 
     public function index(Request $request, $parent_id = 0)
     {
-        // Determine language and parent category
-        $lang = $request->get('lang', app()->getLocale());
+        // Remove language parameter and use default
         if ($request->has('parent_id') && is_numeric($request->get('parent_id'))) {
             $parent_id = $request->get('parent_id');
         }
 
-        // Cache key includes both parent ID and language
-        $cacheKey = "app.categories_{$parent_id}_{$lang}";
+        // Simplified cache key without language
+        $cacheKey = "app.categories_{$parent_id}";
 
-        return Cache::remember($cacheKey, 86400, function() use ($parent_id, $lang) {
-            $categories = Category::with([
-                'translations',
-                'children.translations',
-                'children.children.translations'
-            ])
-                ->where('parent_id', $parent_id)
-                ->get();
-
-            // Attach translated names
-            $categories->map(function ($category) use ($lang) {
-                $translation = $category->translations
-                    ->where('lang', $lang)
-                    ->first();
-
-                $category->translated_name = $translation ? $translation->name : $category->name;
-                return $category;
-            });
+        return Cache::remember($cacheKey, 86400, function() use ($parent_id) {
+            // Optimize query with eager loading and select only necessary fields
+            $categories = Category::with(['children.children' => function($query) {
+                $query->select('id', 'name', 'banner', 'icon', 'parent_id');
+            }])
+            ->where('parent_id', $parent_id)
+            ->select('id', 'name', 'banner', 'icon', 'parent_id')
+            ->get();
 
             return new CategoryCollection($categories);
         });
@@ -47,26 +36,13 @@ class CategoryController extends Controller
 
     public function featured(Request $request)
     {
-        $lang = $request->get('lang', app()->getLocale());
-        $cacheKey = "app.featured_categories_{$lang}";
+        $cacheKey = "app.featured_categories";
 
-        return Cache::remember($cacheKey, 86400, function() use ($lang) {
-            $categories = Category::with([
-                'translations',
-                'children.translations',
-                'children.children.translations'
-            ])
-                ->where('featured', 1)
+        return Cache::remember($cacheKey, 86400, function() {
+            // Optimize query with select only necessary fields
+            $categories = Category::where('featured', 1)
+                ->select('id', 'name', 'banner', 'icon')
                 ->get();
-
-            $categories->map(function ($category) use ($lang) {
-                $translation = $category->translations
-                    ->where('lang', $lang)
-                    ->first();
-
-                $category->translated_name = $translation ? $translation->name : $category->name;
-                return $category;
-            });
 
             return new CategoryCollection($categories);
         });
@@ -74,66 +50,32 @@ class CategoryController extends Controller
 
     public function home(Request $request)
     {
-        $lang = $request->get('lang', app()->getLocale());
+        // Simplified cache key without language
+        $cacheKey = 'app.home_categories';
 
-        // Cache key should include language
-        $cacheKey = 'app.home_categories_' . $lang;
-
-        return Cache::remember($cacheKey, 86400, function() use ($lang) {
-            // Preload all translations and nested children translations to avoid N+1 queries
-            $categories = Category::with([
-                'translations',
-                'children.translations',
-                'children.children.translations'
-            ])
-                ->whereIn('id', json_decode(get_setting('home_categories')))
+        return Cache::remember($cacheKey, 86400, function() {
+            // Optimize query with select only necessary fields
+            $homeCategoryIds = json_decode(get_setting('home_categories')) ?: [];
+            $categories = Category::whereIn('id', $homeCategoryIds)
+                ->select('id', 'name', 'banner', 'icon')
                 ->get();
 
-            // Pass categories to resource
-            return new CategoryCollection($categories->map(function($category) use ($lang) {
-                // Filter translations by requested lang
-                $translation = $category->translations
-                    ->where('lang', $lang)
-                    ->first();
-
-                // Set a temporary attribute for the current language
-                $category->translated_name = $translation ? $translation->name : $category->name;
-
-                return $category;
-            }));
+            return new CategoryCollection($categories);
         });
     }
 
     public function top(Request $request)
     {
-        // Get requested language or fallback
-        $lang = $request->get('lang', app()->getLocale());
+        // Simplified cache key without language
+        $cacheKey = 'app.top_categories';
 
-        // Create a language-specific cache key
-        $cacheKey = 'app.top_categories_' . $lang;
-
-        return Cache::remember($cacheKey, 86400, function() use ($lang) {
-            // Preload translations and child categories
-            $categories = Category::with([
-                'translations',
-                'children.translations',
-                'children.children.translations'
-            ])
-                ->whereIn('id', json_decode(get_setting('home_categories')))
+        return Cache::remember($cacheKey, 86400, function() {
+            // Optimize query with select only necessary fields
+            $homeCategoryIds = json_decode(get_setting('home_categories')) ?: [];
+            $categories = Category::whereIn('id', $homeCategoryIds)
+                ->select('id', 'name', 'banner', 'icon')
                 ->limit(20)
                 ->get();
-
-            // Attach translated names before sending to resource
-            $categories->map(function ($category) use ($lang) {
-                $translation = $category->translations
-                    ->where('lang', $lang)
-                    ->first();
-
-                // Temporarily attach a translated_name attribute
-                $category->translated_name = $translation ? $translation->name : $category->name;
-
-                return $category;
-            });
 
             return new CategoryCollection($categories);
         });

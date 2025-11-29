@@ -1,9 +1,5 @@
 <!doctype html>
-@if(\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
-<html dir="rtl" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-@else
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-@endif
 <head>
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<meta name="app-url" content="{{ getBaseURL() }}">
@@ -22,9 +18,6 @@
 
 	<!-- aiz core css -->
 	<link rel="stylesheet" href="{{ static_asset('assets/css/vendors.css') }}">
-    @if(\App\Models\Language::where('code', Session::get('locale', Config::get('app.locale')))->first()->rtl == 1)
-    <link rel="stylesheet" href="{{ static_asset('assets/css/bootstrap-rtl.min.css') }}">
-    @endif
 	<link rel="stylesheet" href="{{ static_asset('assets/css/aiz-core.css') }}">
 
     <style>
@@ -89,20 +82,6 @@
 	        AIZ.plugins.notify('{{ $message['level'] }}', '{{ $message['message'] }}');
 	    @endforeach
 
-
-        if ($('#lang-change').length > 0) {
-            $('#lang-change .dropdown-menu a').each(function() {
-                $(this).on('click', function(e){
-                    e.preventDefault();
-                    var $this = $(this);
-                    var locale = $this.data('flag');
-                    $.post('{{ route('language.change') }}',{_token:'{{ csrf_token() }}', locale:locale}, function(data){
-                        location.reload();
-                    });
-
-                });
-            });
-        }
         function menuSearch(){
 			var filter, item;
 			filter = $("#menu-search").val().toUpperCase();

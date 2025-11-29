@@ -10,6 +10,7 @@
   | contains the "web" middleware group. Now create something great!
   |
  */
+
 // use App\Mail\SupportMailManager;
 //demo
 
@@ -50,7 +51,7 @@ Route::get('/email_change/callback', 'HomeController@email_change_callback')->na
 Route::post('/password/reset/email/submit', 'HomeController@reset_password_with_code')->name('password.update');
 
 
-Route::post('/language', 'LanguageController@changeLanguage')->name('language.change');
+// Route::post('/language', 'LanguageController@changeLanguage')->name('language.change');  // Removed reference to missing controller
 Route::post('/currency', 'CurrencyController@changeCurrency')->name('currency.change');
 
 Route::get('/social-login/redirect/{provider}', 'Auth\LoginController@redirectToProvider')->name('social.login');
@@ -134,7 +135,6 @@ Route::group(['prefix' => 'checkout', 'middleware' => ['user', 'verified', 'unba
 
 });
 
-
 //Paypal START
 Route::get('/paypal/payment/done', 'PaypalController@getDone')->name('payment.done');
 Route::get('/paypal/payment/cancel', 'PaypalController@getCancel')->name('payment.cancel');
@@ -203,6 +203,7 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function() {
 
     Route::get('/all-notifications', 'NotificationController@index')->name('all-notifications');
 });
+
 
 
 

@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class FlashDealTranslation extends Model
 {
-  protected $fillable = ['title', 'lang', 'flash_deal_id'];
-
-  public function flash_deal(){
-    return $this->belongsTo(FlashDeal::class);
-  }
-
+    protected $fillable = ['flash_deal_id', 'lang', 'title'];
+    
+    public function flashDeal()
+    {
+        return $this->belongsTo(FlashDeal::class);
+    }
 }

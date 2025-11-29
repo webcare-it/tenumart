@@ -339,7 +339,7 @@
                                 </li>
                                 <li class="aiz-side-nav-item">
                                     <a href="{{route('rejected_refund')}}" class="aiz-side-nav-link">
-                                        <span class="aiz-side-nav-text">{{translate('rejected Refunds')}}</span>
+                                        <span class="aiz-side-nav-text">{{translate('Rejected Refunds')}}</span>
                                     </a>
                                 </li>
                                 <li class="aiz-side-nav-item">
@@ -857,15 +857,9 @@
                                     <span class="aiz-side-nav-text">{{translate('General Settings')}}</span>
                                 </a>
                             </li>
-
                             <li class="aiz-side-nav-item">
                                 <a href="{{route('activation.index')}}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">{{translate('Features activation')}}</span>
-                                </a>
-                            </li>
-                            <li class="aiz-side-nav-item">
-                                <a href="{{route('languages.index')}}" class="aiz-side-nav-link {{ areActiveRoutes(['languages.index', 'languages.create', 'languages.store', 'languages.show', 'languages.edit'])}}">
-                                    <span class="aiz-side-nav-text">{{translate('Languages')}}</span>
                                 </a>
                             </li>
 
