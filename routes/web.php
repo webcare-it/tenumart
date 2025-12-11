@@ -182,7 +182,7 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function() {
 
     Route::resource('purchase_history', 'PurchaseHistoryController');
     Route::post('/purchase_history/details', 'PurchaseHistoryController@purchase_history_details')->name('purchase_history.details');
-    Route::get('/purchase_history/destroy/{id}', 'PurchaseHistoryController@destroy')->name('purchase_history.destroy');
+    Route::delete('/purchase_history/destroy/{id}', 'PurchaseHistoryController@destroy')->name('purchase_history.destroy');
 
     Route::resource('wishlists', 'WishlistController');
     Route::post('/wishlists/remove', 'WishlistController@remove')->name('wishlists.remove');
@@ -207,7 +207,7 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function() {
 
 
 
-Route::get('/customer_products/destroy/{id}', 'CustomerProductController@destroy')->name('customer_products.destroy');
+Route::delete('/customer_products/destroy/{id}', 'CustomerProductController@destroy')->name('customer_products.destroy');
 
 Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user']], function() {
     Route::get('/products', 'HomeController@seller_product_list')->name('seller.products');
@@ -230,14 +230,14 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
     Route::get('/coupons/create', 'CouponController@sellerCreate')->name('seller.coupon.create');
     Route::post('/coupons/store', 'CouponController@sellerStore')->name('seller.coupon.store');
     Route::get('/coupon/edit/{id}', 'CouponController@sellerEdit')->name('seller.coupon.edit');
-    Route::get('/coupon/destroy/{id}', 'CouponController@sellerDestroy')->name('seller.coupon.destroy');
+    Route::delete('/coupon/destroy/{id}', 'CouponController@sellerDestroy')->name('seller.coupon.destroy');
     Route::patch('/coupons/update/{id}', 'CouponController@sellerUpdate')->name('seller.coupon.update');
 
     //Upload
     Route::any('/uploads/', 'AizUploadController@index')->name('my_uploads.all');
     Route::any('/uploads/new', 'AizUploadController@create')->name('my_uploads.new');
     Route::any('/uploads/file-info', 'AizUploadController@file_info')->name('my_uploads.info');
-    Route::get('/uploads/destroy/{id}', 'AizUploadController@destroy')->name('my_uploads.destroy');
+    Route::delete('/uploads/destroy/{id}', 'AizUploadController@destroy')->name('my_uploads.destroy');
 });
 
 //GUEST ORDER STORE
@@ -247,7 +247,7 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
 Route::group(['middleware' => ['auth']], function() {
     Route::post('/products/store/', 'ProductController@store')->name('products.store');
     Route::post('/products/update/{id}', 'ProductController@update')->name('products.update');
-    Route::get('/products/destroy/{id}', 'ProductController@destroy')->name('products.destroy');
+    Route::delete('/products/destroy/{id}', 'ProductController@destroy')->name('products.destroy');
     Route::get('/products/duplicate/{id}', 'ProductController@duplicate')->name('products.duplicate');
     Route::post('/products/sku_combination', 'ProductController@sku_combination')->name('products.sku_combination');
     Route::post('/products/sku_combination_edit', 'ProductController@sku_combination_edit')->name('products.sku_combination_edit');
@@ -259,7 +259,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('invoice/{order_id}', 'InvoiceController@invoice_download')->name('invoice.download');
 
     Route::resource('orders', 'OrderController');
-    Route::get('/orders/destroy/{id}', 'OrderController@destroy')->name('orders.destroy');
+    Route::delete('/orders/destroy/{id}', 'OrderController@destroy')->name('orders.destroy');
     Route::post('/orders/details', 'OrderController@order_details')->name('orders.details');
     Route::post('/orders/update_delivery_status', 'OrderController@update_delivery_status')->name('orders.update_delivery_status');
     Route::post('/orders/update_payment_status', 'OrderController@update_payment_status')->name('orders.update_payment_status');
@@ -276,7 +276,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/withdraw_request/message_modal', 'SellerWithdrawRequestController@message_modal')->name('withdraw_request.message_modal');
 
     Route::resource('conversations', 'ConversationController');
-    Route::get('/conversations/destroy/{id}', 'ConversationController@destroy')->name('conversations.destroy');
+    Route::delete('/conversations/destroy/{id}', 'ConversationController@destroy')->name('conversations.destroy');
     Route::post('conversations/refresh', 'ConversationController@refresh')->name('conversations.refresh');
     Route::resource('messages', 'MessageController');
 
@@ -296,7 +296,7 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::resource('digitalproducts', 'DigitalProductController');
     Route::get('/digitalproducts/edit/{id}', 'DigitalProductController@edit')->name('digitalproducts.edit');
-    Route::get('/digitalproducts/destroy/{id}', 'DigitalProductController@destroy')->name('digitalproducts.destroy');
+    Route::delete('/digitalproducts/destroy/{id}', 'DigitalProductController@destroy')->name('digitalproducts.destroy');
     Route::get('/digitalproducts/download/{id}', 'DigitalProductController@download')->name('digitalproducts.download');
 
     //Reports
@@ -330,7 +330,7 @@ Route::post('/get-states', 'AddressController@getStates')->name('get-state');
 Route::post('/get-cities', 'AddressController@getCities')->name('get-city');
 Route::resource('addresses', 'AddressController');
 Route::post('/addresses/update/{id}', 'AddressController@update')->name('addresses.update');
-Route::get('/addresses/destroy/{id}', 'AddressController@destroy')->name('addresses.destroy');
+Route::delete('/addresses/destroy/{id}', 'AddressController@destroy')->name('addresses.destroy');
 Route::get('/addresses/set_default/{id}', 'AddressController@set_default')->name('addresses.set_default');
 
 //Guest

@@ -48,7 +48,7 @@
 
 <h4 class="text-center text-muted mt-4">{{translate('Business Related')}}</h4>
 <div class="row">
-    <div class="col-lg-4">
+    {{-- <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0 h6 text-center">{{translate('Vendor System Activation')}}</h3>
@@ -86,7 +86,7 @@
                 </label>
             </div>
         </div>
-    </div>
+    </div> --}}
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
@@ -100,7 +100,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-4">
+    {{-- <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0 h6 text-center">{{translate('Pickup Point Activation')}}</h3>
@@ -143,8 +143,8 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-lg-4">
+    </div> --}}
+    {{-- <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0 h6 text-center">{{translate('Admin Approval On Seller Product')}}</h3>
@@ -190,7 +190,7 @@
                 </label>
             </div>
         </div>
-    </div>
+    </div> --}}
     <!-- Checkout OTP Activation -->
     <div class="col-lg-4">
         <div class="card">
@@ -208,7 +208,7 @@
             </div>
         </div>
     </div>
-    @if(addon_is_activated('wholesale'))
+    {{-- @if(addon_is_activated('wholesale'))
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
@@ -237,7 +237,7 @@
                 </div>
             </div>
         </div>
-    @endif
+    @endif --}}
 </div>
 
 <h4 class="text-center text-muted mt-4">{{translate('Payment Related')}}</h4>
@@ -262,7 +262,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+{{-- <div class="row">
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header text-center bord-btm">
@@ -320,7 +320,7 @@
             </div>
         </div>
     </div>
-</div>   
+</div>    --}}
 <div class="row">
     <div class="col-lg-4">
         <div class="card">
@@ -343,7 +343,7 @@
     </div>
 
 
-    <div class="col-lg-4">
+    {{-- <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0 h6 text-center">{{translate('Instamojo Payment Activation')}}</h3>
@@ -380,10 +380,10 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 <div class="row">
-    <div class="col-lg-4">
+    {{-- <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0 h6 text-center">{{translate('PayStack Activation')}}</h3>
@@ -482,7 +482,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="col-lg-4">
         <div class="card">
@@ -524,7 +524,7 @@
         </div>
     </div>
 
-    <div class="col-lg-4">
+    {{-- <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0 h6 text-center">{{translate('Proxy Pay Activation')}}</h3>
@@ -542,7 +542,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="col-lg-4">
         <div class="card">
@@ -564,7 +564,7 @@
         </div>
     </div>
 
-    <div class="col-lg-4">
+    {{-- <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0 h6 text-center">{{translate('Authorize Net Activation')}}</h3>
@@ -602,7 +602,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="col-lg-4">
         <div class="card">
@@ -624,7 +624,7 @@
 
 <h4 class="text-center text-muted mt-4">{{translate('Social Media Login')}}</h4>
 <div class="row">
-    <div class="col-lg-4">
+    {{-- <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0 h6 text-center">{{translate('Facebook login')}}</h3>
@@ -639,7 +639,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
@@ -656,7 +656,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-4">
+    {{-- <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0 h6 text-center">{{translate('Twitter login')}}</h3>
@@ -671,7 +671,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 
 @endsection

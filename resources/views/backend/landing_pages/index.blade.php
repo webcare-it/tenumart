@@ -55,9 +55,9 @@
                                     <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.landing-pages.edit', $landing_page->id)}}" title="{{ translate('Edit') }}">
                                         <i class="las la-edit"></i>
                                     </a>
-                                    <a class="btn btn-soft-danger btn-icon btn-circle btn-sm" href="{{route('admin.landing-pages.destroy', $landing_page->id)}}" title="{{ translate('Delete') }}" onclick="confirmDelete({{ $landing_page->id }})">
+                                    <button type="button" class="btn btn-soft-danger btn-icon btn-circle btn-sm" title="{{ translate('Delete') }}" onclick="confirmDelete({{ $landing_page->id }})">
                                         <i class="las la-trash"></i>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach

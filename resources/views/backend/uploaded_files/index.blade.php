@@ -110,7 +110,11 @@
             <div class="modal-body text-center">
                 <p class="mt-1">{{ translate('Are you sure to delete this file?') }}</p>
                 <button type="button" class="btn btn-link mt-2" data-dismiss="modal">{{ translate('Cancel') }}</button>
-                <a href="" class="btn btn-primary mt-2 comfirm-link">{{ translate('Delete') }}</a>
+                <form method="POST" action="" class="d-inline-block confirm-form">
+                    @method('DELETE')
+                    @csrf
+                    <button type="submit" class="btn btn-primary mt-2">{{ translate('Delete') }}</button>
+                </form>
             </div>
         </div>
     </div>

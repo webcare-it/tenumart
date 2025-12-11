@@ -344,7 +344,7 @@ class OrderController extends Controller
             return $order->orderDetails->map(function ($detail) {
                 return [
                     'product_name' => $detail->product->name ?? 'Unknown Product',
-                    'category_name' => $detail->product->category->name,
+                    'category_name' => $detail->product && $detail->product->category ? $detail->product->category->name : '',
                     'product_id' => $detail->product->id ?? null,
                     'product_thumbnail_image' => api_asset($detail->product->thumbnail_img) ?? null,
                     'variation' => $detail->variation,

@@ -14,7 +14,7 @@
 //Admin
 Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function(){
     Route::resource('manual_payment_methods','ManualPaymentMethodController');
-    Route::get('/manual_payment_methods/destroy/{id}', 'ManualPaymentMethodController@destroy')->name('manual_payment_methods.destroy');
+    Route::delete('/manual_payment_methods/destroy/{id}', 'ManualPaymentMethodController@destroy')->name('manual_payment_methods.destroy');
     Route::get('/offline-wallet-recharge-requests', 'WalletController@offline_recharge_request')->name('offline_wallet_recharge_request.index');
     Route::post('/offline-wallet-recharge/approved', 'WalletController@updateApproved')->name('offline_recharge_request.approved');
 

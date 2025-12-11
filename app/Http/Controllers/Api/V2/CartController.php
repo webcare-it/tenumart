@@ -73,18 +73,23 @@ class CartController extends Controller
                         $shop_items_data_item["owner_id"] =intval($shop_items_raw_data_item["owner_id"]) ;
                         $shop_items_data_item["user_id"] =intval($shop_items_raw_data_item["user_id"]) ;
                         $shop_items_data_item["product_id"] =intval($shop_items_raw_data_item["product_id"]) ;
-                        $shop_items_data_item["product_name"] = $product->getTranslation('name');
-                        $shop_items_data_item["category_name"] = $product->category->name;
-                        $shop_items_data_item["product_thumbnail_image"] = api_asset($product->thumbnail_img);
+                        $shop_items_data_item["product_name"] = $product ? $product->name : '';
+                        $shop_items_data_item["category_name"] = $product && $product->category ? $product->category->name : '';
+                        $shop_items_data_item["product_thumbnail_image"] = $product ? api_asset($product->thumbnail_img) : '';
                         $shop_items_data_item["variation"] = $shop_items_raw_data_item["variation"];
                         $shop_items_data_item["price"] =(double) $shop_items_raw_data_item["price"];
                         $shop_items_data_item["currency_symbol"] = $currency_symbol;
                         $shop_items_data_item["tax"] =(double) $shop_items_raw_data_item["tax"];
                         $shop_items_data_item["shipping_cost"] =(double) $shop_items_raw_data_item["shipping_cost"];
                         $shop_items_data_item["quantity"] =intval($shop_items_raw_data_item["quantity"]) ;
-                        $shop_items_data_item["lower_limit"] = intval($product->min_qty) ;
-                        $shop_items_data_item["upper_limit"] = intval($product->stocks->where('variant', $shop_items_raw_data_item['variation'])->first()->qty) ;
-
+                        $shop_items_data_item["lower_limit"] = $product ? intval($product->min_qty) : 0;
+                        $shop_items_data_item["upper_limit"] = 0;
+                        if ($product) {
+                            $stockItem = $product->stocks->where('variant', $shop_items_raw_data_item['variation'])->first();
+                            if ($stockItem) {
+                                $shop_items_data_item["upper_limit"] = intval($stockItem->qty);
+                            }
+                        }
                         $shop_items_data[] = $shop_items_data_item;
 
                     }
@@ -156,7 +161,7 @@ class CartController extends Controller
             $price = $product->unit_price;
         else {
             $product_stock = $product->stocks->where('variant', $variant)->first();
-            $price = $product_stock->price;
+            $price = $product_stock ? $product_stock->price : 0;
         }
 
         //discount calculation based on flash deal and regular discount
@@ -192,7 +197,11 @@ class CartController extends Controller
             return response()->json(['result' => false, 'message' => translate("Minimum")." {$product->min_qty} ".translate("item(s) should be ordered")], 200);
         }
 
-        $stock = $product->stocks->where('variant', $variant)->first()->qty;
+        $stock = 0;
+        $stockItem = $product->stocks->where('variant', $variant)->first();
+        if ($stockItem) {
+            $stock = $stockItem->qty;
+        }
 
         $variant_string = $variant != null && $variant != "" ? translate("for")." ($variant)" : "";
         if ($stock < $request->quantity) {
@@ -281,18 +290,26 @@ class CartController extends Controller
             $i = 0;
             foreach ($cart_ids as $cart_id) {
                 $cart_item = Cart::where('id', $cart_id)->first();
-                $product = Product::where('id', $cart_item->product_id)->first();
+                $product = $cart_item ? Product::where('id', $cart_item->product_id)->first() : null;
 
-                if ($product->min_qty > $cart_quantities[$i]) {
+                if ($product && $product->min_qty > $cart_quantities[$i]) {
                     return response()->json(['result' => false, 'message' => translate("Minimum")." {$product->min_qty} ".translate("item(s) should be ordered for")." {$product->name}"], 200);
                 }
 
-                $stock = $cart_item->product->stocks->where('variant', $cart_item->variation)->first()->qty;
-                $variant_string = $cart_item->variation != null && $cart_item->variation != "" ? " ($cart_item->variation)" : "";
+                $stock = 0;
+                if ($cart_item) {
+                    $stockItem = $cart_item->product->stocks->where('variant', $cart_item->variation)->first();
+                    if ($stockItem) {
+                        $stock = $stockItem->qty;
+                    }
+                }
+                $variant_string = $cart_item && $cart_item->variation != null && $cart_item->variation != "" ? " ($cart_item->variation)" : "";
                 if ($stock >= $cart_quantities[$i]) {
-                    $cart_item->update([
-                        'quantity' => $cart_quantities[$i]
-                    ]);
+                    if ($cart_item) {
+                        $cart_item->update([
+                            'quantity' => $cart_quantities[$i]
+                        ]);
+                    }
 
                 } else {
                     if ($stock == 0) {

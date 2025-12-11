@@ -19,14 +19,12 @@
         <div class="card mb-0 border-bottom-0">
             <div class="card-body p-0">
                 <ul class="nav nav-tabs nav-fill border-light">
-                    @foreach (\App\Models\Language::all() as $key => $language)
-                        <li class="nav-item">
-                            <a class="nav-link text-reset @if ($language->code == $lang) active @else bg-soft-dark border-light border-left-0 @endif py-3" href="{{ route('seller.digitalproducts.edit', ['id'=>$product->id, 'lang'=> $language->code] ) }}">
-                                <img src="{{ static_asset('assets/img/flags/'.$language->code.'.png') }}" height="11" class="mr-1">
-                                <span>{{$language->name}}</span>
-                            </a>
-                        </li>
-                    @endforeach
+                    <!-- Language tabs removed as Language model is no longer available -->
+                    <li class="nav-item">
+                        <a class="nav-link text-reset active py-3" href="#">
+                            <span>Default</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>

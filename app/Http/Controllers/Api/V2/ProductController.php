@@ -144,7 +144,7 @@ class ProductController extends Controller
 
              return [
                 'todays_deal' => $todays_deal,
-                'flash_deals' => $flash_deals,
+                'flash_deal' => $flash_deals,
                 'featured' => $featured,
                 'best_selling' => $best_selling,
             ];
@@ -272,18 +272,23 @@ class ProductController extends Controller
 
     public function home(Request $request)
     {
-        // Determine language
-        $lang = $request->get('lang', app()->getLocale());
+        // Get page and per_page from request, with defaults
+        $page = $request->get('page', 1);
+        $perPage = $request->get('per_page', 20);
         
-        // Cache key includes language
-        $cacheKey = "app.products_home_{$lang}";
+        // Ensure perPage is within reasonable limits
+        $perPage = min(max($perPage, 10), 100);
+        
+        // Cache key includes page, per_page, and sort
+        $cacheKey = "app.products_home_page_{$page}_per_{$perPage}";
         
         // Apply sorting based on the request parameter
         $sort = $request->get('sort', 'newest');
         $cacheKey .= "_{$sort}";
         
-        return Cache::remember($cacheKey, 86400, function() use ($sort, $lang) {
+        return Cache::remember($cacheKey, 86400, function() use ($sort, $page, $perPage) {
             $products = Product::query();
+            $products->where('published', 1);
             
             switch ($sort) {
                 case 'oldest':
@@ -301,7 +306,7 @@ class ProductController extends Controller
                     break;
             }
             
-            return new ProductCollection($products->paginate(20));
+            return new ProductCollection($products->paginate($perPage, ['*'], 'page', $page));
         });
     }
 }

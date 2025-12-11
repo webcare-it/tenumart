@@ -1462,7 +1462,9 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
                 var url = $(this).data("href");
                 var target = $(this).data("target");
                 $(target).modal("show");
+                // Update both link and form action
                 $(target).find(".comfirm-link").attr("href", url);
+                $(target).find(".confirm-form").attr("action", url);
                 $("#comfirm-link").attr("href", url);
             });
         },

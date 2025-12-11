@@ -18,5 +18,5 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
     Route::resource('wholesale-products', 'WholesaleProductController');
     Route::get('wholesale-products/{id}/edit', 'WholesaleProductController@edit')->name('wholesale-products.edit');
     Route::post('/wholesale-products/update/{id}', 'WholesaleProductController@update')->name('wholesale-products.update');
-    Route::get('/wholesale-products/destroy/{id}', 'WholesaleProductController@destroy')->name('wholesale-products.destroy');
+    Route::delete('/wholesale-products/destroy/{id}', 'WholesaleProductController@destroy')->name('wholesale-products.destroy');
 });

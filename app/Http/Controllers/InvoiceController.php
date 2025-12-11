@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Currency;
-use App\Models\Language;
 use App\Models\Order;
 use Session;
 use PDF;
@@ -22,7 +21,9 @@ class InvoiceController extends Controller
         }
         $language_code = Session::get('locale', Config::get('app.locale'));
 
-        if(Language::where('code', $language_code)->first()->rtl == 1){
+        // Set direction based on language code (since Language model is removed)
+        $rtl_languages = ['ar', 'he', 'ur', 'fa', 'ps']; // Common RTL language codes
+        if(in_array($language_code, $rtl_languages)){
             $direction = 'rtl';
             $text_align = 'right';
             $not_text_align = 'left';

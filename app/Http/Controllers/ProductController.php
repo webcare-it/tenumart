@@ -164,11 +164,11 @@ class ProductController extends Controller
         foreach ($choices as $key => $attribute_id) {
             $attribute = Attribute::find($attribute_id);
             if ($attribute) {
-                $html .= '<div class="col-lg-3">';
+                $html .= '<div class="col-md-3">';
                 $html .= '<input type="hidden" name="choice_no[]" value="' . $attribute->id . '">';
                 $html .= '<input type="text" class="form-control" value="' . $attribute->getTranslation('name') . '" placeholder="' . translate('Choice Title') . '" disabled>';
                 $html .= '</div>';
-                $html .= '<div class="col-lg-8">';
+                $html .= '<div class="col-md-8">';
                 $html .= '<select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_' . $attribute->id . '[]" multiple>';
                 
                 foreach ($attribute->attribute_values as $key => $attribute_value) {
@@ -195,6 +195,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        //dd($request->all());
         $product = new Product;
         $product->b_product_id = $request->b_product_id;
         $product->name = $request->name;
@@ -405,6 +406,12 @@ class ProductController extends Controller
 
         //Generates the combinations of customer choice options
         $combinations = Combinations::makeCombinations($options);
+
+        
+        // Check if this is a Droploo variable product (has b_product_id)
+        $isDroplooProduct = $request->has('b_product_id') && $request->b_product_id != null;
+        $isVariableFromApi = $request->has('is_variable') ? (int)$request->is_variable : 0;
+        
         if(count($combinations[0]) > 0){
             $product->variant_product = 1;
             foreach ($combinations as $key => $combination){
@@ -434,28 +441,86 @@ class ProductController extends Controller
                 $product_stock->sku = $request['sku_'.str_replace('.', '_', $str)];
                 $product_stock->qty = $request['qty_'.str_replace('.', '_', $str)];
                 $product_stock->image = $request['img_'.str_replace('.', '_', $str)];
+                
+                
+                $product_stock->save();
+            }
+        }
+        elseif($isDroplooProduct && $isVariableFromApi == 1) {
+            // Handle Droploo variable products from product_images (is_variable == 1)
+            // For Droploo products with b_product_id, only update existing stocks (if any) - do NOT delete or recreate
+            $product->variant_product = 1;
+            
+            // Get all variant fields from request
+            $variantData = [];
+            foreach($request->all() as $key => $value) {
+                // Collect variant names
+                if(strpos($key, 'variant_name_') === 0) {
+                    $fieldKey = str_replace('variant_name_', '', $key);
+                    $variantData[$fieldKey]['name'] = $value;
+                }
+                // Collect pricing data
+                elseif(strpos($key, 'price_') === 0) {
+                    $fieldKey = str_replace('price_', '', $key);
+                    $variantData[$fieldKey]['price'] = $value;
+                }
+                elseif(strpos($key, 'qty_') === 0) {
+                    $fieldKey = str_replace('qty_', '', $key);
+                    $variantData[$fieldKey]['qty'] = $value;
+                }
+                elseif(strpos($key, 'img_') === 0) {
+                    $fieldKey = str_replace('img_', '', $key);
+                    $variantData[$fieldKey]['image'] = $value;
+                }
+                elseif(strpos($key, 'wholesale_price_') === 0) {
+                    $fieldKey = str_replace('wholesale_price_', '', $key);
+                    $variantData[$fieldKey]['wholesale_price'] = $value;
+                }
+                elseif(strpos($key, 'sku_') === 0) {
+                    $fieldKey = str_replace('sku_', '', $key);
+                    $variantData[$fieldKey]['sku'] = $value;
+                }
+            }
+            
+            // Process each variant
+            foreach($variantData as $fieldKey => $data) {
+                // Use the provided variant name, or reconstruct from field key if not provided
+                $str = isset($data['name']) ? $data['name'] : str_replace('_', ' ', $fieldKey);
+                
+                $product_stock = new ProductStock;
+                $product_stock->product_id = $product->id;
+                $product_stock->variant = $data['name'];
+                $product_stock->sku = $data['sku'];
+                $product_stock->price = $data['price'];
+                $product_stock->qty = $data['qty'];
+                $product_stock->image = $data['image'];
+                
                 $product_stock->save();
             }
         }
         else{
-            $product_stock              = new ProductStock;
-            $product_stock->product_id  = $product->id;
-            $product_stock->variant     = '';
-            $product_stock->price       = $request->unit_price;
-            $product_stock->sku         = $request->sku;
-            $product_stock->qty         = $request->current_stock;
-            $product_stock->save();
+            // For non-variable products or Droploo products with is_variable == 0
+            // Only create product_stocks if is_variable is not explicitly set to 0
+            $shouldCreateStocks = true;
+            
+            // Check if is_variable is explicitly 0 (meaning no stocks should be created)
+            if($request->has('is_variable') && (int)$request->is_variable === 0) {
+                $shouldCreateStocks = false;
+            }
+            
+            if($shouldCreateStocks) {
+                $product_stock              = new ProductStock;
+                $product_stock->product_id  = $product->id;
+                $product_stock->variant     = '';
+                $product_stock->price       = $request->unit_price;
+                $product_stock->sku         = $request->sku;
+                $product_stock->qty         = $request->current_stock ?? 0; // Handle null qty
+                $product_stock->save();
+            }
         }
         //combinations end
 
 	    $product->save();
-
-        // Product Translations
-        $product_translation = ProductTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'product_id' => $product->id]);
-        $product_translation->name = $request->name;
-        $product_translation->unit = $request->unit;
-        $product_translation->description = $request->description;
-        $product_translation->save();
 
         flash(translate('Product has been inserted successfully'))->success();
 
@@ -601,9 +666,11 @@ class ProductController extends Controller
             ->with('childrenCategories')
             ->get();
 
-            // dd($product);
+            // Pass product_images for variant display
+            $product_images = isset($product['product_images']) ? $product['product_images'] : [];
 
-            return view('backend.product.products.droploo-product-create', compact('product','categories'));
+
+            return view('backend.product.products.droploo-product-create', compact('product','categories', 'product_images'));
         }
 
         else {
@@ -805,10 +872,9 @@ class ProductController extends Controller
             }
         }
 
-        foreach ($product->stocks as $key => $stock) {
-            $stock->delete();
-        }
-
+        // FIX: Move this deletion AFTER we check if we're dealing with combinations
+        // This prevents deleting stocks when we shouldn't
+        
         if (!empty($request->choice_no)) {
             $product->attributes = json_encode($request->choice_no);
         }
@@ -838,8 +904,17 @@ class ProductController extends Controller
         }
 
         $combinations = Combinations::makeCombinations($options);
-        if(count($combinations[0]) > 0){
+        
+        // Check if this is a Droploo variable product (has b_product_id)
+        $isDroplooProduct = $product->b_product_id != null;
+        
+        // FIX: For variant products with b_product_id, skip deletion and only update
+        // For regular variant products (without b_product_id), delete and recreate stocks
+        if(count($combinations[0]) > 0 && !$isDroplooProduct){
             $product->variant_product = 1;
+            foreach ($product->stocks as $key => $stock) {
+                $stock->delete();
+            }
             foreach ($combinations as $key => $combination){
                 $str = '';
                 foreach ($combination as $key => $item){
@@ -856,7 +931,6 @@ class ProductController extends Controller
                         }
                     }
                 }
-
                 $product_stock = ProductStock::where('product_id', $product->id)->where('variant', $str)->first();
                 if($product_stock == null){
                     $product_stock = new ProductStock;
@@ -869,19 +943,93 @@ class ProductController extends Controller
                     $product_stock->sku = $request['sku_'.str_replace('.', '_', $str)];
                     $product_stock->qty = $request['qty_'.str_replace('.', '_', $str)];
                     $product_stock->image = $request['img_'.str_replace('.', '_', $str)];
-
+     
+                    $product_stock->save();
+                }
+            }
+        }
+        elseif($isDroplooProduct) {
+            // Handle Droploo variable products from product_images
+            // For variant products with b_product_id, only update price, qty, and image - do NOT delete existing stocks
+            $product->variant_product = 1;
+            
+            // Get all variant fields from request
+            $variantData = [];
+            foreach($request->all() as $key => $value) {
+                // Collect variant names
+                if(strpos($key, 'variant_name_') === 0) {
+                    $fieldKey = str_replace('variant_name_', '', $key);
+                    $variantData[$fieldKey]['name'] = $value;
+                }
+                // Collect pricing data
+                elseif(strpos($key, 'price_') === 0) {
+                    $fieldKey = str_replace('price_', '', $key);
+                    $variantData[$fieldKey]['price'] = $value;
+                }
+                elseif(strpos($key, 'qty_') === 0) {
+                    $fieldKey = str_replace('qty_', '', $key);
+                    $variantData[$fieldKey]['qty'] = $value;
+                }
+                elseif(strpos($key, 'img_') === 0) {
+                    $fieldKey = str_replace('img_', '', $key);
+                    $variantData[$fieldKey]['image'] = $value;
+                }
+                elseif(strpos($key, 'wholesale_price_') === 0) {
+                    $fieldKey = str_replace('wholesale_price_', '', $key);
+                    $variantData[$fieldKey]['wholesale_price'] = $value;
+                }
+                elseif(strpos($key, 'sku_') === 0) {
+                    $fieldKey = str_replace('sku_', '', $key);
+                    $variantData[$fieldKey]['sku'] = $value;
+                }
+            }
+            
+            // Process each variant
+            foreach($variantData as $fieldKey => $data) {
+                // Use the provided variant name, or reconstruct from field key if not provided
+                $str = isset($data['name']) ? $data['name'] : str_replace('_', ' ', $fieldKey);
+                
+                $product_stock = ProductStock::where('product_id', $product->id)->where('variant', $str)->first();
+                if($product_stock != null){
+                    // Only update price, qty, and image - do NOT delete or recreate
+                    $product_stock->price = $data['price'] ?? $product_stock->price;
+                    $product_stock->qty = $data['qty'] ?? $product_stock->qty;
+                    $product_stock->image = $data['image'] ?? $product_stock->image;
+                    
+                    // Add wholesale price if available
+                    if(isset($data['wholesale_price'])) {
+                        $product_stock->wholesale_price = $data['wholesale_price'];
+                    }
+                    
                     $product_stock->save();
                 }
             }
         }
         else{
-            $product_stock              = new ProductStock;
-            $product_stock->product_id  = $product->id;
-            $product_stock->variant     = '';
-            $product_stock->price       = $request->unit_price;
-            $product_stock->sku         = $request->sku;
-            $product_stock->qty         = $request->current_stock;
-            $product_stock->save();
+            // For non-variable products, update the existing stock or create one if it doesn't exist
+            // Only update/create product_stocks if is_variable is not explicitly set to 0
+            $shouldCreateStocks = true;
+            
+            // Check if is_variable is explicitly 0 (meaning no stocks should be created)
+            if($request->has('is_variable') && (int)$request->is_variable === 0) {
+                $shouldCreateStocks = false;
+                // Delete existing stocks if is_variable is 0
+                ProductStock::where('product_id', $product->id)->delete();
+            }
+            
+            if($shouldCreateStocks) {
+                $product_stock = ProductStock::where('product_id', $product->id)->first();
+                if($product_stock == null){
+                    $product_stock = new ProductStock;
+                    $product_stock->product_id = $product->id;
+                }
+                $product_stock->variant = '';
+                $product_stock->price = $request->unit_price;
+                // Use sku_single if available, otherwise fallback to sku
+                $product_stock->sku = $request->sku_single ?? $request->sku ?? '';
+                $product_stock->qty = $request->current_stock ?? 0; // Handle null qty
+                $product_stock->save();
+            }
         }
 
         $product->save();
@@ -949,7 +1097,7 @@ class ProductController extends Controller
             $stock->delete();
         }
 
-        if(Product::destroy($id)){
+        if($product->delete()){
             Cart::where('product_id', $id)->delete();
 
             flash(translate('Product has been deleted successfully'))->success();
@@ -1155,6 +1303,14 @@ class ProductController extends Controller
         }
 
         $combinations = Combinations::makeCombinations($options);
+        
+        // Check if this is a Droploo product
+        if ($product->b_product_id != null) {
+            // For Droploo products, we need to show the existing stocks data
+            // We'll pass the product stocks to a special view
+            return view('backend.product.products.droploo_sku_combinations_edit', compact('product'));
+        }
+        
         return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
     }
 

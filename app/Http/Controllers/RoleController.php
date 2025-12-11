@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Role;
-use App\Models\RoleTranslation;
+// Removed RoleTranslation import
 
 class RoleController extends Controller
 {
@@ -43,16 +43,13 @@ class RoleController extends Controller
             $role->permissions = json_encode($request->permissions);
             $role->save();
 
-            $role_translation = RoleTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'role_id' => $role->id]);
-            $role_translation->name = $request->name;
-            $role_translation->save();
-
+            // Removed RoleTranslation code
+            
             flash(translate('Role has been inserted successfully'))->success();
             return redirect()->route('roles.index');
         }
         flash(translate('Something went wrong'))->error();
         return back();
-
     }
 
     /**
@@ -97,10 +94,8 @@ class RoleController extends Controller
             $role->permissions = json_encode($request->permissions);
             $role->save();
 
-            $role_translation = RoleTranslation::firstOrNew(['lang' => $request->lang, 'role_id' => $role->id]);
-            $role_translation->name = $request->name;
-            $role_translation->save();
-
+            // Removed RoleTranslation code
+            
             flash(translate('Role has been updated successfully'))->success();
             return redirect()->route('roles.index');
         }
@@ -117,9 +112,7 @@ class RoleController extends Controller
     public function destroy($id)
     {
         $role = Role::findOrFail($id);
-        foreach ($role->role_translations as $key => $role_translation) {
-            $role_translation->delete();
-        }
+        // Removed RoleTranslation deletion code
 
         Role::destroy($id);
         flash(translate('Role has been deleted successfully'))->success();

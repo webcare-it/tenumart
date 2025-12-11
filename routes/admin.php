@@ -23,13 +23,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
 
     Route::resource('categories', 'CategoryController');
     Route::get('/categories/edit/{id}', 'CategoryController@edit')->name('categories.edit');
-    Route::get('/categories/destroy/{id}', 'CategoryController@destroy')->name('categories.destroy');
+    Route::delete('/categories/destroy/{id}', 'CategoryController@destroy')->name('categories.destroy');
     Route::post('/categories/featured', 'CategoryController@updateFeatured')->name('categories.featured');
     Route::post('/bulk-category-delete', 'CategoryController@bulk_delete')->name('categories.bulk-delete');
 
     Route::resource('brands', 'BrandController');
     Route::get('/brands/edit/{id}', 'BrandController@edit')->name('brands.edit');
-    Route::get('/brands/destroy/{id}', 'BrandController@destroy')->name('brands.destroy');
+    Route::delete('/brands/destroy/{id}', 'BrandController@destroy')->name('brands.destroy');
 
     Route::get('/products/admin', 'ProductController@admin_products')->name('products.admin');
     Route::get('/products/seller', 'ProductController@seller_products')->name('products.seller');
@@ -52,7 +52,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
 
     Route::resource('sellers', 'SellerController');
     Route::get('sellers_ban/{id}', 'SellerController@ban')->name('sellers.ban');
-    Route::get('/sellers/destroy/{id}', 'SellerController@destroy')->name('sellers.destroy');
+    Route::delete('/sellers/destroy/{id}', 'SellerController@destroy')->name('sellers.destroy');
     Route::post('/bulk-seller-delete', 'SellerController@bulk_seller_delete')->name('bulk-seller-delete');
     Route::get('/sellers/view/{id}/verification', 'SellerController@show_verification_request')->name('sellers.show_verification_request');
     Route::get('/sellers/approve/{id}', 'SellerController@approve_seller')->name('sellers.approve');
@@ -65,7 +65,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     Route::resource('customers', 'CustomerController');
     Route::get('customers_ban/{customer}', 'CustomerController@ban')->name('customers.ban');
     Route::get('/customers/login/{id}', 'CustomerController@login')->name('customers.login');
-    Route::get('/customers/destroy/{id}', 'CustomerController@destroy')->name('customers.destroy');
+    Route::delete('/customers/destroy/{id}', 'CustomerController@destroy')->name('customers.destroy');
     Route::post('/bulk-customer-delete', 'CustomerController@bulk_customer_delete')->name('bulk-customer-delete');
 
     Route::get('/newsletter', 'NewsletterController@index')->name('newsletters.index');
@@ -112,7 +112,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     //Tax
     Route::resource('tax', 'TaxController');
     Route::get('/tax/edit/{id}', 'TaxController@edit')->name('tax.edit');
-    Route::get('/tax/destroy/{id}', 'TaxController@destroy')->name('tax.destroy');
+    Route::delete('/tax/destroy/{id}', 'TaxController@destroy')->name('tax.destroy');
     Route::post('tax-status', 'TaxController@change_tax_status')->name('taxes.tax-status');
 
 
@@ -129,19 +129,19 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
         Route::get('/pages', 'WebsiteController@pages')->name('website.pages');
         Route::resource('custom-pages', 'PageController');
         Route::get('/custom-pages/edit/{id}', 'PageController@edit')->name('custom-pages.edit');
-        Route::get('/custom-pages/destroy/{id}', 'PageController@destroy')->name('custom-pages.destroy');
+        Route::delete('/custom-pages/destroy/{id}', 'PageController@destroy')->name('custom-pages.destroy');
     });
 
     Route::resource('roles', 'RoleController');
     Route::get('/roles/edit/{id}', 'RoleController@edit')->name('roles.edit');
-    Route::get('/roles/destroy/{id}', 'RoleController@destroy')->name('roles.destroy');
+    Route::delete('/roles/destroy/{id}', 'RoleController@destroy')->name('roles.destroy');
 
     Route::resource('staffs', 'StaffController');
-    Route::get('/staffs/destroy/{id}', 'StaffController@destroy')->name('staffs.destroy');
+    Route::delete('/staffs/destroy/{id}', 'StaffController@destroy')->name('staffs.destroy');
 
     Route::resource('flash_deals', 'FlashDealController');
     Route::get('/flash_deals/edit/{id}', 'FlashDealController@edit')->name('flash_deals.edit');
-    Route::get('/flash_deals/destroy/{id}', 'FlashDealController@destroy')->name('flash_deals.destroy');
+    Route::delete('/flash_deals/destroy/{id}', 'FlashDealController@destroy')->name('flash_deals.destroy');
     Route::post('/flash_deals/update_status', 'FlashDealController@update_status')->name('flash_deals.update_status');
     Route::post('/flash_deals/update_featured', 'FlashDealController@update_featured')->name('flash_deals.update_featured');
     Route::post('/flash_deals/product_discount', 'FlashDealController@product_discount')->name('flash_deals.product_discount');
@@ -149,7 +149,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
 
     //Subscribers
     Route::get('/subscribers', 'SubscriberController@index')->name('subscribers.index');
-    Route::get('/subscribers/destroy/{id}', 'SubscriberController@destroy')->name('subscriber.destroy');
+    Route::delete('/subscribers/destroy/{id}', 'SubscriberController@destroy')->name('subscriber.destroy');
 
     // Route::get('/orders', 'OrderController@admin_orders')->name('orders.index.admin');
     // Route::get('/orders/{id}/show', 'OrderController@show')->name('orders.show');
@@ -174,7 +174,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     Route::get('orders_by_pickup_point', 'OrderController@pickup_point_order_index')->name('pick_up_point.order_index');
     Route::get('/orders_by_pickup_point/{id}/show', 'OrderController@pickup_point_order_sales_show')->name('pick_up_point.order_show');
 
-    Route::get('/orders/destroy/{id}', 'OrderController@destroy')->name('orders.destroy');
+    Route::delete('/orders/destroy/{id}', 'OrderController@destroy')->name('orders.destroy');
     Route::post('/bulk-order-delete', 'OrderController@bulk_order_delete')->name('bulk-order-delete');
 
     Route::post('/pay_to_seller', 'CommissionController@pay_to_seller')->name('commissions.pay_to_seller');
@@ -189,14 +189,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
 
     //Blog Section
     Route::resource('blog-category', 'BlogCategoryController');
-    Route::get('/blog-category/destroy/{id}', 'BlogCategoryController@destroy')->name('blog-category.destroy');
+    Route::delete('/blog-category/destroy/{id}', 'BlogCategoryController@destroy')->name('blog-category.destroy');
     Route::resource('blog', 'BlogController');
-    Route::get('/blog/destroy/{id}', 'BlogController@destroy')->name('blog.destroy');
+    Route::delete('/blog/destroy/{id}', 'BlogController@destroy')->name('blog.destroy');
     Route::post('/blog/change-status', 'BlogController@change_status')->name('blog.change-status');
 
     //Coupons
     Route::resource('coupon', 'CouponController');
-    Route::get('/coupon/destroy/{id}', 'CouponController@destroy')->name('coupon.destroy');
+    Route::delete('/coupon/destroy/{id}', 'CouponController@destroy')->name('coupon.destroy');
 
     //Reviews
     Route::get('/reviews', 'ReviewController@index')->name('reviews.index');
@@ -210,7 +210,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     //Pickup_Points
     Route::resource('pick_up_points', 'PickupPointController');
     Route::get('/pick_up_points/edit/{id}', 'PickupPointController@edit')->name('pick_up_points.edit');
-    Route::get('/pick_up_points/destroy/{id}', 'PickupPointController@destroy')->name('pick_up_points.destroy');
+    Route::delete('/pick_up_points/destroy/{id}', 'PickupPointController@destroy')->name('pick_up_points.destroy');
 
     //conversation of seller customer
     Route::get('conversations', 'ConversationController@admin_index')->name('conversations.admin_index');
@@ -221,20 +221,20 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
 
     Route::resource('attributes', 'AttributeController');
     Route::get('/attributes/edit/{id}', 'AttributeController@edit')->name('attributes.edit');
-    Route::get('/attributes/destroy/{id}', 'AttributeController@destroy')->name('attributes.destroy');
+    Route::delete('/attributes/destroy/{id}', 'AttributeController@destroy')->name('attributes.destroy');
 
     //Attribute Value
     Route::post('/store-attribute-value', 'AttributeController@store_attribute_value')->name('store-attribute-value');
     Route::get('/edit-attribute-value/{id}', 'AttributeController@edit_attribute_value')->name('edit-attribute-value');
     Route::post('/update-attribute-value/{id}', 'AttributeController@update_attribute_value')->name('update-attribute-value');
-    Route::get('/destroy-attribute-value/{id}', 'AttributeController@destroy_attribute_value')->name('destroy-attribute-value');
+    Route::delete('/destroy-attribute-value/{id}', 'AttributeController@destroy_attribute_value')->name('destroy-attribute-value');
 
     //Colors
     Route::get('/colors', 'AttributeController@colors')->name('colors');
     Route::post('/colors/store', 'AttributeController@store_color')->name('colors.store');
     Route::get('/colors/edit/{id}', 'AttributeController@edit_color')->name('colors.edit');
     Route::post('/colors/update/{id}', 'AttributeController@update_color')->name('colors.update');
-    Route::get('/colors/destroy/{id}', 'AttributeController@destroy_color')->name('colors.destroy');
+    Route::delete('/colors/destroy/{id}', 'AttributeController@destroy_color')->name('colors.destroy');
 
     Route::resource('addons', 'AddonController');
     Route::post('/addons/activation', 'AddonController@activation')->name('addons.activation');
@@ -247,7 +247,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
 
     Route::resource('customer_packages', 'CustomerPackageController');
     Route::get('/customer_packages/edit/{id}', 'CustomerPackageController@edit')->name('customer_packages.edit');
-    Route::get('/customer_packages/destroy/{id}', 'CustomerPackageController@destroy')->name('customer_packages.destroy');
+    Route::delete('/customer_packages/destroy/{id}', 'CustomerPackageController@destroy')->name('customer_packages.destroy');
 
     //Classified Products
     Route::get('/classified_products', 'CustomerProductController@customer_product_index')->name('classified_products');
@@ -270,7 +270,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
 
     Route::resource('cities', 'CityController');
     Route::get('/cities/edit/{id}', 'CityController@edit')->name('cities.edit');
-    Route::get('/cities/destroy/{id}', 'CityController@destroy')->name('cities.destroy');
+    Route::delete('/cities/destroy/{id}', 'CityController@destroy')->name('cities.destroy');
     Route::post('/cities/status', 'CityController@updateStatus')->name('cities.status');
 
     Route::view('/system/update', 'backend.system.update')->name('system_update');
@@ -279,7 +279,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     // uploaded files
     Route::any('/uploaded-files/file-info', 'AizUploadController@file_info')->name('uploaded-files.info');
     Route::resource('/uploaded-files', 'AizUploadController');
-    Route::get('/uploaded-files/destroy/{id}', 'AizUploadController@destroy')->name('uploaded-files.destroy');
+    Route::delete('/uploaded-files/destroy/{id}', 'AizUploadController@destroy')->name('uploaded-files.destroy');
 
     Route::get('/all-notification', 'NotificationController@index')->name('admin.all-notification');
 

@@ -34,7 +34,7 @@ class ApiCacheHeaders
         
         // Set cache headers
         $headers = [
-            'Cache-Control' => 'public, max-age=' . $cacheDuration . ', must-revalidate',
+            'Cache-Control' => 'public, max-age=' . $cacheDuration . ', stale-while-revalidate=3600',
             'Expires' => now()->addSeconds($cacheDuration)->toRfc7231String(),
             'ETag' => '"' . $etag . '"',
             'Last-Modified' => now()->toRfc7231String(),

@@ -64,11 +64,11 @@ class ProductDetailCollection extends ResourceCollection
                     'name' => $translatedName,
                     'slug' => $data->slug,
                     'added_by' => $data->added_by,
-                    'category_name' => $data->category->name,
+                    'category_name' => $data->category ? $data->category->name : '',
                     'seller_id' => $data->user->id ?? "",
-                    'shop_id' => $data->added_by == 'admin' ? 0 : $data->user->shop->id,
-                    'shop_name' => $data->added_by == 'admin' ? 'In House Product' : $data->user->shop->name,
-                    'shop_logo' => $data->added_by == 'admin' ? api_asset(get_setting('header_logo')) : api_asset($data->user->shop->logo),
+                    'shop_id' => $data->added_by == 'admin' ? 0 : ($data->user && $data->user->shop ? $data->user->shop->id : ""),
+                    'shop_name' => $data->added_by == 'admin' ? 'In House Product' : ($data->user && $data->user->shop ? $data->user->shop->name : ""),
+                    'shop_logo' => $data->added_by == 'admin' ? api_asset(get_setting('header_logo')) : ($data->user && $data->user->shop ? api_asset($data->user->shop->logo) : ""),
                     'photos' => $photos,
                     'thumbnail_image' => api_asset($data->thumbnail_img),
                     'tags' => explode(',', $data->tags),
@@ -115,7 +115,7 @@ class ProductDetailCollection extends ResourceCollection
                 $attribute = Attribute::find($choice->attribute_id);
 
                 $item['name'] = $choice->attribute_id;
-                $item['title'] = $attribute->name;
+                $item['title'] = $attribute ? $attribute->name : '';
                 $item['options'] = $choice->values;
                 $result[] = $item;
             }

@@ -45,6 +45,9 @@
 					}
 				}
 			}
+			
+			// FIX: Ensure the string is properly formatted for field names (replace dots with underscores)
+			$field_str = str_replace('.', '_', $str);
 		@endphp
 		@if(strlen($str) > 0)
 			<tr class="variant">
@@ -52,13 +55,13 @@
 					<label for="" class="control-label">{{ $str }}</label>
 				</td>
 				<td>
-					<input type="number" lang="en" name="price_{{ $str }}" value="{{ $unit_price }}" min="0" step="0.01" class="form-control" required>
+					<input type="number" lang="en" name="price_{{ $field_str }}" value="{{ $unit_price }}" min="0" step="0.01" class="form-control" required>
 				</td>
 				<td>
-					<input type="text" name="sku_{{ $str }}" value="" class="form-control">
+					<input type="text" name="sku_{{ $field_str }}" value="" class="form-control">
 				</td>
 				<td>
-					<input type="number" lang="en" name="qty_{{ $str }}" value="10" min="0" step="1" class="form-control" required>
+					<input type="number" lang="en" name="qty_{{ $field_str }}" value="10" min="0" step="1" class="form-control" required>
 				</td>
 				<td>
 					<div class=" input-group " data-toggle="aizuploader" data-type="image">
@@ -66,7 +69,7 @@
 							<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse') }}</div>
 						</div>
 						<div class="form-control file-amount text-truncate">{{ translate('Choose File') }}</div>
-						<input type="hidden" name="img_{{ $str }}" class="selected-files">
+						<input type="hidden" name="img_{{ $field_str }}" class="selected-files">
 					</div>
 					<div class="file-preview box sm"></div>
 				</td>

@@ -5,370 +5,382 @@
     <h5 class="mb-0 h6">{{translate('Product Information')}}</h5>
 </div>
 
-<div class="row">
-    <div class="col-lg-10 mx-auto">
-        <form action="{{ route('products.update', $product->id) }}" method="POST">
-            <input name="_method" type="hidden" value="POST">
-            <input type="hidden" name="id" value="{{ $product->id }}">
-            <input type="hidden" name="lang" value="{{ $lang }}">
-            @csrf
-            <div class="card">
-                <div class="card-body">
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Product Name')}} <i class="las la-language text-danger" title="{{translate('Translatable')}}"></i></label>
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control" name="name" placeholder="{{translate('Product Name')}}" value="{{ $product->getTranslation('name', $lang) }}" required>
-                        </div>
+<div class="">
+    <form class="form form-horizontal mar-top" action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data" id="choice_form">
+        <input name="_method" type="hidden" value="POST">
+        <input type="hidden" name="id" value="{{ $product->id }}">
+        <input type="hidden" name="lang" value="{{ $lang }}">
+        <!-- Add hidden b_product_id field if it exists -->
+        @if(isset($product->b_product_id))
+        <input type="hidden" name="b_product_id" value="{{ $product->b_product_id }}">
+        @endif
+        <div class="row gutters-5 ">
+            <div class="col-lg-12">
+                @csrf
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 h6">{{translate('Product Information')}}</h5>
                     </div>
-                    <div class="form-group row" id="category">
-                        <label class="col-lg-3 col-from-label">{{translate('Category')}}</label>
-                        <div class="col-lg-8">
-                            <select class="form-control aiz-selectpicker" name="category_id" id="category_id" data-selected="{{ $product->category_id }}" data-live-search="true" required>
-                                @foreach ($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->getTranslation('name') }}</option>
-                                @foreach ($category->childrenCategories as $childCategory)
-                                @include('categories.child_category', ['child_category' => $childCategory])
-                                @endforeach
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group row" id="brand">
-                        <label class="col-lg-3 col-from-label">{{translate('Brand')}}</label>
-                        <div class="col-lg-8">
-                            <select class="form-control aiz-selectpicker" name="brand_id" id="brand_id" data-live-search="true">
-                                <option value="">{{ translate('Select Brand') }}</option>
-                                @foreach (\App\Models\Brand::all() as $brand)
-                                <option value="{{ $brand->id }}" @if($product->brand_id == $brand->id) selected @endif>{{ $brand->getTranslation('name') }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Unit')}} <i class="las la-language text-danger" title="{{translate('Translatable')}}"></i> </label>
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control" name="unit" placeholder="{{ translate('Unit (e.g. KG, Pc etc)') }}" value="{{$product->getTranslation('unit', $lang)}}" required>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Minimum Purchase Qty')}}</label>
-                        <div class="col-lg-8">
-                            <input type="number" lang="en" class="form-control" name="min_qty" value="@if($product->min_qty <= 1){{1}}@else{{$product->min_qty}}@endif" min="1" required>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Tags')}}</label>
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control aiz-tag-input" name="tags[]" id="tags" value="{{ $product->tags }}" placeholder="{{ translate('Type to add a tag') }}" data-role="tagsinput">
-                        </div>
-                    </div>
-
-                    @if (addon_is_activated('pos_system'))
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Barcode')}}</label>
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control" name="barcode" placeholder="{{ translate('Barcode') }}" value="{{ $product->barcode }}">
-                        </div>
-                    </div>
-                    @endif
-
-                    @if (addon_is_activated('refund_request'))
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Refundable')}}</label>
-                        <div class="col-lg-8">
-                            <label class="aiz-switch aiz-switch-success mb-0" style="margin-top:5px;">
-                                <input type="checkbox" name="refundable" @if ($product->refundable == 1) checked @endif>
-                                <span class="slider round"></span></label>
-                            </label>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0 h6">{{translate('Product Images')}}</h5>
-                </div>
-                <div class="card-body">
-
-                    <div class="form-group row">
-                        <label class="col-md-3 col-form-label" for="signinSrEmail">{{ translate('Gallery Images')}}</label>
-                        <div class="col-md-8">
-                            <div class="input-group" data-toggle="aizuploader" data-type="image" data-multiple="true">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
-                                </div>
-                                <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-                                <input type="hidden" name="photos" value="{{ $product->photos }}" class="selected-files">
-                            </div>
-                            <div class="file-preview box sm">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Product Name')}} <i class="las la-language text-danger" title="{{translate('Translatable')}}"></i></label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="name" placeholder="{{translate('Product Name')}}" value="{{ $product->getTranslation('name', $lang) }}" onchange="update_sku()" required>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-md-3 col-form-label" for="signinSrEmail">{{translate('Thumbnail Image')}} <small>(290x300)</small></label>
-                        <div class="col-md-8">
-                            <div class="input-group" data-toggle="aizuploader" data-type="image">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
-                                </div>
-                                <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-                                <input type="hidden" name="thumbnail_img" value="{{ $product->thumbnail_img }}" class="selected-files">
+                        <div class="form-group row" id="category">
+                            <label class="col-md-3 col-from-label">{{translate('Category')}}</label>
+                            <div class="col-md-8">
+                                <select class="form-control aiz-selectpicker" name="category_id" id="category_id" data-selected="{{ $product->category_id }}" data-live-search="true" required>
+                                    @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->getTranslation('name') }}</option>
+                                    @foreach ($category->childrenCategories as $childCategory)
+                                    @include('categories.child_category', ['child_category' => $childCategory])
+                                    @endforeach
+                                    @endforeach
+                                </select>
                             </div>
-                            <div class="file-preview box sm">
+                        </div>
+                        <div class="form-group row" id="brand">
+                            <label class="col-md-3 col-from-label">{{translate('Brand')}}</label>
+                            <div class="col-md-8">
+                                <select class="form-control aiz-selectpicker" name="brand_id" id="brand_id" data-live-search="true">
+                                    <option value="">{{ translate('Select Brand') }}</option>
+                                    @foreach (\App\Models\Brand::all() as $brand)
+                                    <option value="{{ $brand->id }}" @if($product->brand_id == $brand->id) selected @endif>{{ $brand->getTranslation('name') }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0 h6">{{translate('Product Videos')}}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Video Provider')}}</label>
-                        <div class="col-lg-8">
-                            <select class="form-control aiz-selectpicker" name="video_provider" id="video_provider">
-                                <option value="youtube" <?php if ($product->video_provider == 'youtube') echo "selected"; ?> >{{translate('Youtube')}}</option>
-                            </select>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Unit')}} <i class="las la-language text-danger" title="{{translate('Translatable')}}"></i> </label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="unit" placeholder="{{ translate('Unit (e.g. KG, Pc etc)') }}" value="{{$product->getTranslation('unit', $lang)}}" required>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Video Link')}}</label>
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control" name="video_link" value="{{ $product->video_link }}" placeholder="{{ translate('Video Link') }}">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Minimum Purchase Qty')}}</label>
+                            <div class="col-md-8">
+                                <input type="number" lang="en" class="form-control" name="min_qty" value="@if($product->min_qty <= 1){{1}}@else{{$product->min_qty}}@endif" min="1" required>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0 h6">{{translate('Product Variation')}}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="form-group row gutters-5">
-                        <div class="col-lg-3">
-                            <input type="text" class="form-control" value="{{translate('Colors')}}" disabled>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Tags')}}</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control aiz-tag-input" name="tags[]" id="tags" value="{{ $product->tags }}" placeholder="{{ translate('Type to add a tag') }}" data-role="tagsinput">
+                            </div>
                         </div>
-                        <div class="col-lg-8">
-                            <select class="form-control aiz-selectpicker" data-live-search="true" data-selected-text-format="count" name="colors[]" id="colors" multiple>
-                                @foreach (\App\Models\Color::orderBy('name', 'asc')->get() as $key => $color)
-                                <option
-                                    value="{{ $color->code }}"
-                                    data-content="<span><span class='size-15px d-inline-block mr-2 rounded border' style='background:{{ $color->code }}'></span><span>{{ $color->name }}</span></span>"
-                                    <?php if (in_array($color->code, json_decode($product->colors))) echo 'selected' ?>
-                                    ></option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-lg-1">
-                            <label class="aiz-switch aiz-switch-success mb-0">
-                                <input value="1" type="checkbox" id="colors_active" name="colors_active" @if (count(json_decode($product->colors)) > 0) checked @endif>
-                                <span></span>
-                            </label>
-                        </div>
-                    </div>
 
-                    <div class="form-group row gutters-5">
-                        <div class="col-lg-3">
-                            <input type="text" class="form-control" value="{{translate('Attributes')}}" disabled>
-                        </div>
-                        <div class="col-lg-8">
-                            <select name="choice_attributes[]" id="choice_attributes" class="form-control aiz-selectpicker" multiple data-placeholder="{{ translate('Choose Attributes') }}">
-                                @foreach (\App\Models\Attribute::all() as $key => $attribute)
-                                <option value="{{ $attribute->id }}" @if(in_array($attribute->id, json_decode($product->attributes))) selected @endif>{{ $attribute->getTranslation('name') }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row" id="customer_choice_options">
-                        @foreach (json_decode($product->attributes) as $key => $attribute_id)
-                        @php
-                            $attribute = \App\Models\Attribute::find($attribute_id);
-                        @endphp
-                        @if ($attribute)
-                        <div class="col-lg-3">
-                            <input type="hidden" name="choice_no[]" value="{{ $attribute->id }}">
-                            <input type="text" class="form-control" value="{{ $attribute->getTranslation('name') }}" placeholder="{{ translate('Choice Title') }}" disabled>
-                        </div>
-                        <div class="col-lg-8">
-                            <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_{{ $attribute->id }}[]" multiple>
-                                @foreach ($attribute->attribute_values as $key => $attribute_value)
-                                <option value="{{ $attribute_value->value }}" @if(in_array($attribute_value->value, json_decode($product->choice_options)->{$attribute->id} ?? [])) selected @endif>{{ $attribute_value->value }}</option>
-                                @endforeach
-                            </select>
+                        @if (addon_is_activated('pos_system'))
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Barcode')}}</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="barcode" placeholder="{{ translate('Barcode') }}" value="{{ $product->barcode }}">
+                            </div>
                         </div>
                         @endif
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0 h6">{{translate('Product price + stock')}}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Unit price')}}</label>
-                        <div class="col-lg-6">
-                            <input type="text" placeholder="{{translate('Unit price')}}" name="unit_price" class="form-control" value="{{$product->unit_price}}" required>
-                        </div>
-                    </div>
 
-                    @if($product->digital != 1)
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Purchase price')}}</label>
-                        <div class="col-lg-6">
-                            <input type="number" lang="en" min="0" step="0.01" placeholder="{{translate('Purchase price')}}" name="purchase_price" class="form-control" value="{{$product->purchase_price}}" required>
+                        @if (addon_is_activated('refund_request'))
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Refundable')}}</label>
+                            <div class="col-md-8">
+                                <label class="aiz-switch aiz-switch-success mb-0" style="margin-top:5px;">
+                                    <input type="checkbox" name="refundable" @if ($product->refundable == 1) checked @endif>
+                                    <span class="slider round"></span></label>
+                                </label>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Tax')}}</label>
-                        <div class="col-lg-6">
-                            <input type="number" lang="en" min="0" step="0.01" placeholder="{{translate('Tax')}}" name="tax" class="form-control" value="{{$product->tax}}" required>
-                            <small class="form-text text-muted">{{translate('In Percent')}}</small>
-                        </div>
-                        <div class="col-lg-3">
-                            <select class="form-control aiz-selectpicker" name="tax_type" required>
-                                <option value="amount" <?php if ($product->tax_type == 'amount') echo "selected"; ?> >{{translate('Flat')}}</option>
-                                <option value="percent" <?php if ($product->tax_type == 'percent') echo "selected"; ?> >{{translate('Percent')}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Discount')}}</label>
-                        <div class="col-lg-6">
-                            <input type="number" lang="en" min="0" step="0.01" placeholder="{{translate('Discount')}}" name="discount" class="form-control" value="{{ $product->discount }}" required>
-                            <small class="form-text text-muted">{{translate('In Percent')}}</small>
-                        </div>
-                        <div class="col-lg-3">
-                            <select class="form-control aiz-selectpicker" name="discount_type" required>
-                                <option value="amount" <?php if ($product->discount_type == 'amount') echo "selected"; ?> >{{translate('Flat')}}</option>
-                                <option value="percent" <?php if ($product->discount_type == 'percent') echo "selected"; ?> >{{translate('Percent')}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    @endif
-
-                    @if (\App\Models\Addon::where('unique_identifier', 'club_point')->first() != null && \App\Models\Addon::where('unique_identifier', 'club_point')->first()->activated)
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">
-                            {{translate('Set Point')}}
-                        </label>
-                        <div class="col-lg-6">
-                            <input type="number" lang="en" min="0" step="1" placeholder="{{translate('1')}}" name="earn_point" class="form-control" value="{{ $product->earn_point }}" required>
-                        </div>
-                    </div>
-                    @endif
-
-                    @if($product->digital == 1)
-                    <input type="hidden" name="shipping_type" value="free_shipping">
-                    @else
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Shipping cost')}}</label>
-                        <div class="col-lg-6">
-                            <input type="number" lang="en" min="0" step="0.01" placeholder="{{translate('Shipping cost')}}" name="shipping_cost" class="form-control" value="{{ $product->shipping_cost }}" required>
-                        </div>
-                        <div class="col-lg-3">
-                            <select class="form-control aiz-selectpicker" name="shipping_type" required>
-                                <option value="free" @if($product->shipping_type == 'free') selected @endif>{{translate('Free shipping')}}</option>
-                                <option value="flat_rate" @if($product->shipping_type == 'flat_rate') selected @endif>{{translate('Flat rate')}}</option>
-                                <option value="product_wise" @if($product->shipping_type == 'product_wise') selected @endif>{{translate('Product wise shipping')}}</option>
-                                <option value="area_wise" @if($product->shipping_type == 'area_wise') selected @endif>{{translate('Area wise shipping')}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    @endif
-
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('SKU')}}</label>
-                        <div class="col-lg-6">
-                            <input type="text" placeholder="{{translate('SKU')}}" name="sku" class="form-control" value="{{ $product->sku }}" required>
-                        </div>
+                        @endif
                     </div>
                 </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0 h6">{{translate('Product Description')}}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Description')}}</label>
-                        <div class="col-lg-9">
-                            <textarea class="aiz-text-editor" name="description">{{ $product->getTranslation('description', $lang) }}</textarea>
-                        </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 h6">{{translate('Product Images')}}</h5>
                     </div>
-                </div>
-            </div>
+                    <div class="card-body">
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0 h6">{{translate('PDF Specification')}}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="form-group row">
-                        <label class="col-md-3 col-form-label" for="signinSrEmail">{{translate('PDF Specification')}}</label>
-                        <div class="col-md-8">
-                            <div class="input-group" data-toggle="aizuploader" data-type="document">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label" for="signinSrEmail">{{ translate('Gallery Images')}}</label>
+                            <div class="col-md-8">
+                                <div class="input-group" data-toggle="aizuploader" data-type="image" data-multiple="true">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+                                    </div>
+                                    <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                    <input type="hidden" name="photos" value="{{ $product->photos }}" class="selected-files">
                                 </div>
-                                <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-                                <input type="hidden" name="pdf" value="{{ $product->pdf }}" class="selected-files">
-                            </div>
-                            <div class="file-preview box sm">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0 h6">{{translate('SEO Meta Tags')}}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Meta Title')}}</label>
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control" name="meta_title" value="{{ $product->meta_title }}" placeholder="{{translate('Meta Title')}}">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Description')}}</label>
-                        <div class="col-lg-8">
-                            <textarea name="meta_description" rows="8" class="form-control">{{ $product->meta_description }}</textarea>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-md-3 col-form-label" for="signinSrEmail">{{translate('Meta Images')}}</label>
-                        <div class="col-md-8">
-                            <div class="input-group" data-toggle="aizuploader" data-type="image" data-multiple="true">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+                                <div class="file-preview box sm">
                                 </div>
-                                <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-                                <input type="hidden" name="meta_img" value="{{ $product->meta_img }}" class="selected-files">
-                            </div>
-                            <div class="file-preview box sm">
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-3 col-from-label">{{translate('Slug')}}</label>
-                        <div class="col-lg-8">
-                            <input type="text" placeholder="{{translate('Slug')}}" name="slug" class="form-control" value="{{ $product->slug }}">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label" for="signinSrEmail">{{translate('Thumbnail Image')}} <small>(290x300)</small></label>
+                            <div class="col-md-8">
+                                <div class="input-group" data-toggle="aizuploader" data-type="image">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+                                    </div>
+                                    <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                    <input type="hidden" name="thumbnail_img" value="{{ $product->thumbnail_img }}" class="selected-files">
+                                </div>
+                                <div class="file-preview box sm">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 h6">{{translate('Product Videos')}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Video Provider')}}</label>
+                            <div class="col-md-8">
+                                <select class="form-control aiz-selectpicker" name="video_provider" id="video_provider">
+                                    <option value="youtube" <?php if ($product->video_provider == 'youtube') echo "selected"; ?> >{{translate('Youtube')}}</option>
+                                    <option value="dailymotion" <?php if ($product->video_provider == 'dailymotion') echo "selected"; ?> >{{translate('Dailymotion')}}</option>
+                                    <option value="vimeo" <?php if ($product->video_provider == 'vimeo') echo "selected"; ?> >{{translate('Vimeo')}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Video Link')}}</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="video_link" value="{{ $product->video_link }}" placeholder="{{ translate('Video Link') }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Conditional Product Variation - hide when b_product_id exists -->
+                @if(!isset($product->b_product_id))
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 h6">{{translate('Product Variation')}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row gutters-5">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" value="{{translate('Colors')}}" disabled>
+                            </div>
+                            <div class="col-md-8">
+                                <select class="form-control aiz-selectpicker" data-live-search="true" data-selected-text-format="count" name="colors[]" id="colors" multiple>
+                                    @foreach (\App\Models\Color::orderBy('name', 'asc')->get() as $key => $color)
+                                    <option
+                                        value="{{ $color->code }}"
+                                        data-content="<span><span class='size-15px d-inline-block mr-2 rounded border' style='background:{{ $color->code }}'></span><span>{{ $color->name }}</span></span>"
+                                        <?php if (in_array($color->code, json_decode($product->colors))) echo 'selected' ?>
+                                        ></option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="aiz-switch aiz-switch-success mb-0">
+                                    <input value="1" type="checkbox" id="colors_active" name="colors_active" @if (count(json_decode($product->colors)) > 0) checked @endif>
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row gutters-5">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" value="{{translate('Attributes')}}" disabled>
+                            </div>
+                            <div class="col-md-8">
+                                <select name="choice_attributes[]" id="choice_attributes" class="form-control aiz-selectpicker" multiple data-placeholder="{{ translate('Choose Attributes') }}">
+                                    @foreach (\App\Models\Attribute::all() as $key => $attribute)
+                                    <option value="{{ $attribute->id }}" @if(in_array($attribute->id, json_decode($product->attributes))) selected @endif>{{ $attribute->getTranslation('name') }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row" id="customer_choice_options">
+                            @foreach (json_decode($product->attributes) as $key => $attribute_id)
+                            @php
+                                $attribute = \App\Models\Attribute::find($attribute_id);
+                            @endphp
+                            @if ($attribute)
+                            <div class="col-md-3">
+                                <input type="hidden" name="choice_no[]" value="{{ $attribute->id }}">
+                                <input type="text" class="form-control" value="{{ $attribute->getTranslation('name') }}" placeholder="{{ translate('Choice Title') }}" disabled>
+                            </div>
+                            <div class="col-md-8">
+                                <select class="form-control aiz-selectpicker attribute_choice" data-live-search="true" name="choice_options_{{ $attribute->id }}[]" multiple>
+                                    @foreach ($attribute->attribute_values as $key => $attribute_value)
+                                    <option value="{{ $attribute_value->value }}" @if(in_array($attribute_value->value, json_decode($product->choice_options)->{$attribute->id} ?? [])) selected @endif>{{ $attribute_value->value }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @endif
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 h6">{{translate('Product price + stock')}}</h5>
+                    </div>
+                    <div class="card-body">
+                        
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Unit price')}}</label>
+                            <div class="col-md-6">
+                                <input type="text" placeholder="{{translate('Unit price')}}" name="unit_price" class="form-control" value="{{$product->unit_price}}" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+	                        <label class="col-sm-3 control-label" for="start_date">{{translate('Discount Date Range')}}</label>
+	                        <div class="col-sm-9">
+	                          <input type="text" class="form-control aiz-date-range" name="date_range" placeholder="{{translate('Select Date')}}" data-time-picker="true" data-format="DD-MM-Y HH:mm:ss" data-separator=" to " autocomplete="off">
+	                        </div>
+	                    </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Discount')}}</label>
+                            <div class="col-md-6">
+                                <input type="number" lang="en" min="0" step="0.01" placeholder="{{translate('Discount')}}" name="discount" class="form-control" value="{{ $product->discount }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-control aiz-selectpicker" name="discount_type" required>
+                                    <option value="amount" <?php if ($product->discount_type == 'amount') echo "selected"; ?> >{{translate('Flat')}}</option>
+                                    <option value="percent" <?php if ($product->discount_type == 'percent') echo "selected"; ?> >{{translate('Percent')}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        @if (\App\Models\Addon::where('unique_identifier', 'club_point')->first() != null && \App\Models\Addon::where('unique_identifier', 'club_point')->first()->activated)
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">
+                                {{translate('Set Point')}}
+                            </label>
+                            <div class="col-md-6">
+                                <input type="number" lang="en" min="0" step="1" placeholder="{{translate('1')}}" name="earn_point" class="form-control" value="{{ $product->earn_point }}" required>
+                            </div>
+                        </div>
+                        @endif
+
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('SKU')}}</label>
+                            <div class="col-md-6">
+                                <input type="text" placeholder="{{translate('SKU')}}" name="sku" class="form-control" value="{{ $product->sku }}">
+                            </div>
+                        </div>
+                        
+                        <!-- Show/hide div for non-variable products -->
+                        <div id="show-hide-div" style="{{ $product->variant_product ? 'display:none;' : '' }}">
+                            <div class="form-group row">
+                                <label class="col-md-3 col-from-label">{{translate('Quantity')}} <span class="text-danger">*</span></label>
+                                <div class="col-md-6">
+                                    <input type="number" lang="en" min="0" value="{{ $product->stocks->first() ? $product->stocks->first()->qty : 0 }}" step="1" placeholder="{{ translate('Quantity') }}" name="current_stock" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-3 col-from-label">
+                                    {{translate('SKU')}}
+                                </label>
+                                <div class="col-md-6">
+                                    <input type="text" placeholder="{{ translate('SKU') }}" value="{{ $product->stocks->first() ? $product->stocks->first()->sku : '' }}" name="sku_single" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @if ($product->variant_product == 1)
+                        <!-- SKU Combination Section -->
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Variants')}}</label>
+                            <div class="col-md-9">
+                                <div class="sku_combination" id="sku_combination">
+                                    <!-- This will be populated by AJAX -->
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 h6">{{translate('Product Description')}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Description')}}</label>
+                            <div class="col-md-8">
+                                <textarea class="aiz-text-editor" name="description">{{ $product->getTranslation('description', $lang) }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 h6">{{translate('PDF Specification')}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label" for="signinSrEmail">{{translate('PDF Specification')}}</label>
+                            <div class="col-md-8">
+                                <div class="input-group" data-toggle="aizuploader" data-type="document">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+                                    </div>
+                                    <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                    <input type="hidden" name="pdf" value="{{ $product->pdf }}" class="selected-files">
+                                </div>
+                                <div class="file-preview box sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0 h6">{{translate('SEO Meta Tags')}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Meta Title')}}</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="meta_title" value="{{ $product->meta_title }}" placeholder="{{translate('Meta Title')}}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Description')}}</label>
+                            <div class="col-md-8">
+                                <textarea name="meta_description" rows="8" class="form-control">{{ $product->meta_description }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-form-label" for="signinSrEmail">{{translate('Meta Images')}}</label>
+                            <div class="col-md-8">
+                                <div class="input-group" data-toggle="aizuploader" data-type="image" data-multiple="true">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
+                                    </div>
+                                    <div class="form-control file-amount">{{ translate('Choose File') }}</div>
+                                    <input type="hidden" name="meta_img" value="{{ $product->meta_img }}" class="selected-files">
+                                </div>
+                                <div class="file-preview box sm">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{translate('Slug')}}</label>
+                            <div class="col-md-8">
+                                <input type="text" placeholder="{{translate('Slug')}}" name="slug" class="form-control" value="{{ $product->slug }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3 text-right">
+                    <button type="submit" name="button" class="btn btn-primary">{{ translate('Update Product') }}</button>
+                </div>
             </div>
-            <div class="mb-3 text-right">
-                <button type="submit" name="button" class="btn btn-primary">{{ translate('Update Product') }}</button>
-            </div>
-        </form>
-    </div>
+            
+        </div>
+    </form>
 </div>
 
 @endsection
@@ -398,7 +410,7 @@
     }
 
     function add_more_customer_choice_option(i, name){
-        $('#customer_choice_options').append('<div class="row"><div class="col-8 col-md-3"><input type="hidden" name="choice_no[]" value="'+i+'"><input type="text" class="form-control" name="choice[]" value="'+name+'" placeholder="{{ translate('Choice Title') }}" readonly></div><div class="col-12 col-md-8"><input type="text" class="form-control aiz-tag-input" name="choice_options_'+i+'[]" placeholder="{{ translate('Enter choice values') }}" data-role="tagsinput" onchange="update_sku()"></div></div>');
+        $('#customer_choice_options').append('<div class="row"><div class="col-md-3"><input type="hidden" name="choice_no[]" value="'+i+'"><input type="text" class="form-control" name="choice[]" value="'+name+'" placeholder="{{ translate('Choice Title') }}" readonly></div><div class="col-md-8"><input type="text" class="form-control aiz-tag-input" name="choice_options_'+i+'[]" placeholder="{{ translate('Enter choice values') }}" data-role="tagsinput" onchange="update_sku()"></div></div>');
 
         AIZ.plugins.tagify();
     }
@@ -440,15 +452,17 @@
            success: function(data){
                $('#sku_combination').html(data);
                AIZ.plugins.fooTable();
-               if (data.length > 1) {
-                   $('#quantity').hide();
-                   $('#in_stock').hide();
-                   $('#stockQuantity').hide();
+               AIZ.uploader.previewGenerate();
+               // Check if we have variants in the returned HTML
+               var variantCount = $(data).find('.variant').length;
+               if (variantCount > 0) {
+                   $('#show-hide-div').hide();
                } else {
-                   $('#quantity').show();
-                   $('#in_stock').show();
-                   $('#stockQuantity').show();
+                   $('#show-hide-div').show();
                }
+           },
+           error: function(){
+               console.log('Error updating SKU combinations');
            }
        });
     }
@@ -456,7 +470,10 @@
     AIZ.plugins.tagify();
 
     $(document).ready(function(){
-        update_sku();
+        // Only load variants if this is a variant product
+        @if($product->variant_product == 1)
+            update_sku();
+        @endif
 
         $('.remove-files').on('click', function(){
             $(this).parents('.col-md-4').remove();
@@ -483,6 +500,7 @@
 
         $.post('{{ route('products.edit') }}', {_token:'{{ csrf_token() }}', choices:choices, id:{{ $product->id }}}, function(data){
             $('#customer_choice_options').html(data);
+            AIZ.plugins.bootstrapSelect('refresh');
             AIZ.plugins.fooTable();
             update_sku();
         });

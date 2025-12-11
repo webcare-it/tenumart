@@ -48,11 +48,7 @@ class LandingPageController extends Controller
      */
     public function showBySlug($slug)
     {
-        $cacheKey = 'app.landing_page_slug_' . $slug;
-        
-        return Cache::remember($cacheKey, 86400, function() use ($slug) {
-            $landingPage = LandingPage::with(['products', 'images', 'reviews'])->select('*')->where('slug', $slug)->get();
-            return new LandingPageDetailCollection($landingPage);
-        });
+         $landingPage = LandingPage::with(['products', 'images', 'reviews'])->select('*')->where('slug', $slug)->get();
+        return new LandingPageDetailCollection($landingPage);
     }
 }

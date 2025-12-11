@@ -11,6 +11,7 @@
                 @csrf
                 <input type="hidden" name="added_by" value="admin">
                 <input type="hidden" name="b_product_id" value="{{$product['id']}}">
+                <input type="hidden" name="is_variable" value="{{$product['is_variable']}}">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0 h6">{{translate('Product Information')}}</h5>
@@ -154,6 +155,7 @@
                         <h5 class="mb-0 h6">{{translate('Product Variation')}}</h5>
                     </div>
                     <div class="card-body">
+                        @if($product['is_variable'] == 0)
                         <div class="form-group row gutters-5">
                             <div class="col-md-3">
                                 <input type="text" class="form-control" value="{{translate('Colors')}}" disabled>
@@ -193,6 +195,11 @@
                         <div class="customer_choice_options" id="customer_choice_options">
 
                         </div>
+                        @else
+                        <div class="alert alert-info">
+                            <strong>{{translate('This is a variable product')}}</strong> - Variants will be displayed based on product images from API.
+                        </div>
+                        @endif
                     </div>
                 </div>
                 <div class="card">
@@ -244,11 +251,11 @@
                             </div>
                         @endif
 
-                        <div id="show-hide-div">
+                        <div id="show-hide-div" @if($product['is_variable'] == 1) style="display:none;" @endif>
                             <div class="form-group row">
                                 <label class="col-md-3 col-from-label">{{translate('Quantity')}} <span class="text-danger">*</span></label>
                                 <div class="col-md-6">
-                                    <input type="number" lang="en" min="0" value="{{$product['qty']}}" step="1" placeholder="{{ translate('Quantity') }}" name="current_stock" class="form-control" readonly>
+                                    <input type="number" lang="en" min="0" value="{{$product['qty']}}" step="1" placeholder="{{ translate('Quantity') }}" name="current_stock" class="form-control" @if($product['is_variable'] == 0) readonly @endif>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -260,27 +267,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label class="col-md-3 col-from-label">
-                                {{translate('External link')}}
-                            </label>
-                            <div class="col-md-9">
-                                <input type="text" placeholder="{{ translate('External link') }}" name="external_link" class="form-control">
-                                <small class="text-muted">{{translate('Leave it blank if you do not use external site link')}}</small>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-md-3 col-from-label">
-                                {{translate('External link button text')}}
-                            </label>
-                            <div class="col-md-9">
-                                <input type="text" placeholder="{{ translate('External link button text') }}" name="external_link_btn" class="form-control">
-                                <small class="text-muted">{{translate('Leave it blank if you do not use external site link')}}</small>
-                            </div>
-                        </div>
                         <br>
                         <div class="sku_combination" id="sku_combination">
-
+                            @if($product['is_variable'] == 1)
+                                @include('backend.product.products.droploo_sku_combinations', ['product_images' => $product['product_images'], 'product_name' => $product['name']])
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -749,6 +740,13 @@
     }
 
     function update_sku(){
+        // For Droploo variable products (is_variable == 1), don't update SKU combination via AJAX
+        // The combinations are already pre-loaded from the API
+        @if($product['is_variable'] == 1)
+            // Don't make AJAX call for variable products - combinations are pre-defined from API
+            return;
+        @endif
+        
         $.ajax({
            type:"POST",
            url:'{{ route('products.sku_combination') }}',

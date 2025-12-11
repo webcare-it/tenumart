@@ -47,7 +47,7 @@ Route::group(['prefix' => 'v2'], function() {
     Route::get('brands/top', 'Api\V2\BrandController@top')->middleware('api.cache');
     Route::apiResource('brands', 'Api\V2\BrandController')->only('index')->middleware('api.cache');
 
-    Route::apiResource('business-settings', 'Api\V2\BusinessSettingController')->only('index');
+    Route::apiResource('business-settings', 'Api\V2\BusinessSettingController')->only('index')->middleware('api.cache:300');
 
     Route::get('categories/featured', 'Api\V2\CategoryController@featured');
     Route::get('categories/home', 'Api\V2\CategoryController@home');

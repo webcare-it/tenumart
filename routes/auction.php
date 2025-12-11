@@ -32,10 +32,10 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('auction_products', 'AuctionProductController');
     Route::post('/auction_products/update/{id}', 'AuctionProductController@update')->name('auction_products.update');
     Route::get('/auction_products/edit/{id}', 'AuctionProductController@edit')->name('auction_products.edit');
-    Route::get('/auction_products/destroy/{id}', 'AuctionProductController@destroy')->name('auction_products.destroy');
+    Route::delete('/auction_products/destroy/{id}', 'AuctionProductController@destroy')->name('auction_products.destroy');
 
     Route::resource('product_bids', 'AuctionProductBidController');
-    Route::get('/product_bids/destroy/{id}', 'AuctionProductBidController@destroy')->name('product_bids.destroy');
+    Route::delete('/product_bids/destroy/{id}', 'AuctionProductBidController@destroy')->name('product_bids.destroy');
 
     Route::resource('auction_product_bids', 'AuctionProductBidController');
     Route::post('/auction/cart/show-cart-modal', 'CartController@showCartModalAuction')->name('auction.cart.showCartModal');

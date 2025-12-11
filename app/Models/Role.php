@@ -3,19 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App;
 
 class Role extends Model
 {
-    protected $with = ['role_translations'];
-
-    public function getTranslation($field = '', $lang = false){
-        $lang = $lang == false ? App::getLocale() : $lang;
-        $role_translation = $this->role_translations->where('lang', $lang)->first();
-        return $role_translation != null ? $role_translation->$field : $this->$field;
+    // Removed translation relationship and methods
+    
+    // Direct access to attributes without translation
+    public function getNameAttribute($value)
+    {
+        return $value;
     }
-
-    public function role_translations(){
-      return $this->hasMany(RoleTranslation::class);
+    
+    // Fallback method that returns the field directly
+    public function getTranslation($field = '', $lang = false){
+        return $this->$field;
     }
 }
