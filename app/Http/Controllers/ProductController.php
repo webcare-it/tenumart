@@ -505,7 +505,7 @@ class ProductController extends Controller
             
             // Check if is_variable is explicitly 0 (meaning no stocks should be created)
             if($request->has('is_variable') && (int)$request->is_variable === 0) {
-                $shouldCreateStocks = false;
+                $shouldCreateStocks = true;
             }
             
             if($shouldCreateStocks) {
@@ -948,11 +948,7 @@ class ProductController extends Controller
                 }
             }
         }
-        elseif($isDroplooProduct) {
-            // Handle Droploo variable products from product_images
-            // For variant products with b_product_id, only update price, qty, and image - do NOT delete existing stocks
-            $product->variant_product = 1;
-            
+        elseif($isDroplooProduct && $product->variant_product == 1) {
             // Get all variant fields from request
             $variantData = [];
             foreach($request->all() as $key => $value) {
@@ -1006,19 +1002,7 @@ class ProductController extends Controller
             }
         }
         else{
-            // For non-variable products, update the existing stock or create one if it doesn't exist
-            // Only update/create product_stocks if is_variable is not explicitly set to 0
-            $shouldCreateStocks = true;
-            
-            // Check if is_variable is explicitly 0 (meaning no stocks should be created)
-            if($request->has('is_variable') && (int)$request->is_variable === 0) {
-                $shouldCreateStocks = false;
-                // Delete existing stocks if is_variable is 0
-                ProductStock::where('product_id', $product->id)->delete();
-            }
-            
-            if($shouldCreateStocks) {
-                $product_stock = ProductStock::where('product_id', $product->id)->first();
+            $product_stock = ProductStock::where('product_id', $product->id)->first();
                 if($product_stock == null){
                     $product_stock = new ProductStock;
                     $product_stock->product_id = $product->id;
@@ -1029,7 +1013,6 @@ class ProductController extends Controller
                 $product_stock->sku = $request->sku_single ?? $request->sku ?? '';
                 $product_stock->qty = $request->current_stock ?? 0; // Handle null qty
                 $product_stock->save();
-            }
         }
 
         $product->save();
@@ -1064,13 +1047,6 @@ class ProductController extends Controller
                 $product_tax->save();
             }
         }
-
-        // Product Translations
-        $product_translation                = ProductTranslation::firstOrNew(['lang' => $request->lang, 'product_id' => $product->id]);
-        $product_translation->name          = $request->name;
-        $product_translation->unit          = $request->unit;
-        $product_translation->description   = $request->description;
-        $product_translation->save();
 
         flash(translate('Product has been updated successfully'))->success();
 
