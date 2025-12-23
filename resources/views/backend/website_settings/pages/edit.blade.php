@@ -20,12 +20,13 @@
 			<div class="form-group row">
 				<label class="col-sm-2 col-from-label" for="name">{{translate('Title')}} <span class="text-danger">*</span> <i class="las la-language text-danger" title="{{translate('Translatable')}}"></i></label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control" placeholder="{{translate('Title')}}" name="title" value="{{ $page->getTranslation('title',$lang) }}" required>
+					{{-- Replace getTranslation with direct property access --}}
+					<input type="text" class="form-control" placeholder="{{translate('Title')}}" name="title" value="{{ $page->title }}" required>
 				</div>
 			</div>
 
 
-				<div class="form-group row">
+				{{-- <div class="form-group row">
 					<label class="col-sm-2 col-from-label" for="name">{{translate('Link')}} <span class="text-danger">*</span></label>
 					<div class="col-sm-10">
 						<div class="input-group d-block d-md-flex">
@@ -38,7 +39,7 @@
 						</div>
 						<small class="form-text text-muted">{{ translate('Use character, number, hypen only') }}</small>
 					</div>
-				</div>
+				</div> --}}
 
 			<div class="form-group row">
 				<label class="col-sm-2 col-from-label" for="name">{{translate('Add Content')}} <span class="text-danger">*</span></label>
@@ -50,7 +51,8 @@
 						data-min-height="300"
 						name="content"
 						required
-					>{!! $page->getTranslation('content',$lang) !!}</textarea>
+					{{-- Replace getTranslation with direct property access --}}
+					>{!! $page->content !!}</textarea>
 				</div>
 			</div>
 		</div>

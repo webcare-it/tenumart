@@ -31,10 +31,23 @@ class PageController extends Controller
      */
     public function show($slug)
     {
+        // Map predefined slugs to actual page slugs
+        $slugMap = [
+            'about-us' => 'aboutus',
+            'contact-us' => 'contactus',
+            'privacy-policy' => 'privacypolicy',
+            'terms-condition' => 'terms',
+            'return-policy' => 'returnpolicy',
+            'support-policy' => 'supportpolicy',
+            'seller-policy' => 'sellerpolicy'
+        ];
+        
+        // Get the actual slug from map or use the provided slug
+        $actualSlug = $slugMap[$slug] ?? $slug;
         $cacheKey = 'app.page_' . $slug;
         
-        return Cache::remember($cacheKey, 86400, function() use ($slug) {
-            $page = Page::where('slug', $slug)->firstOrFail();
+        return Cache::remember($cacheKey, 86400, function() use ($actualSlug) {
+            $page = Page::where('slug', $actualSlug)->firstOrFail();
             return new PageResource($page);
         });
     }

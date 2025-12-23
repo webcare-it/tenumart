@@ -59,13 +59,23 @@ class ProductController extends Controller
 
     public function category($id, Request $request)
     {
+        // Get page and per_page from request, with defaults
+        $page = $request->get('page', 1);
+        $perPage = $request->get('per_page', 10);
+        
+        // Ensure perPage is within reasonable limits
+        $perPage = min(max($perPage, 10), 100);
+        
         $name = $request->name;
         $cacheKey = "app.products_category_$id";
         if ($name) {
             $cacheKey .= '_' . md5($name);
         }
         
-        return Cache::remember($cacheKey, 3600, function() use ($id, $request) {
+        // Add pagination params to cache key
+        $cacheKey .= "_page_{$page}_per_{$perPage}";
+        
+        return Cache::remember($cacheKey, 3600, function() use ($id, $request, $page, $perPage) {
             $category_ids = CategoryUtility::children_ids($id);
             $category_ids[] = $id;
 
@@ -75,26 +85,36 @@ class ProductController extends Controller
                 $products = $products->where('name', 'like', '%' . $request->name . '%');
             }
             $products->where('published', 1);
-            return new ProductMiniCollection(filter_products($products)->latest()->paginate(10));
+            return new ProductMiniCollection(filter_products($products)->latest()->paginate($perPage, ['*'], 'page', $page));
         });
     }
 
 
     public function brand($id, Request $request)
     {
+        // Get page and per_page from request, with defaults
+        $page = $request->get('page', 1);
+        $perPage = $request->get('per_page', 10);
+        
+        // Ensure perPage is within reasonable limits
+        $perPage = min(max($perPage, 10), 100);
+        
         $name = $request->name;
         $cacheKey = "app.products_brand_$id";
         if ($name) {
             $cacheKey .= '_' . md5($name);
         }
         
-        return Cache::remember($cacheKey, 3600, function() use ($id, $request) {
+        // Add pagination params to cache key
+        $cacheKey .= "_page_{$page}_per_{$perPage}";
+        
+        return Cache::remember($cacheKey, 3600, function() use ($id, $request, $page, $perPage) {
             $products = Product::where('brand_id', $id);
             if ($request->name != "" || $request->name != null) {
                 $products = $products->where('name', 'like', '%' . $request->name . '%');
             }
 
-            return new ProductMiniCollection(filter_products($products)->latest()->paginate(10));
+            return new ProductMiniCollection(filter_products($products)->latest()->paginate($perPage, ['*'], 'page', $page));
         });
     }
 
@@ -172,13 +192,23 @@ class ProductController extends Controller
 
     public function search(Request $request)
     {
+        // Get page and per_page from request, with defaults
+        $page = $request->get('page', 1);
+        $perPage = $request->get('per_page', 10);
+        
+        // Ensure perPage is within reasonable limits
+        $perPage = min(max($perPage, 10), 100);
+        
         $name = $request->query_key;
         
         // Create cache key based on parameters
         $cacheKey = 'app.products_search';
         if ($name) $cacheKey .= '_name_' . md5($name);
+        
+        // Add pagination params to cache key
+        $cacheKey .= "_page_{$page}_per_{$perPage}";
 
-        return Cache::remember($cacheKey, 1800, function() use ($name) {
+        return Cache::remember($cacheKey, 1800, function() use ($name, $page, $perPage) {
             $products = Product::query();
 
             $products->where('published', 1);
@@ -193,7 +223,7 @@ class ProductController extends Controller
             $products->orderBy('created_at', 'desc');
 
             // Get the paginated results
-            $paginatedProducts = $products->paginate(10);
+            $paginatedProducts = $products->paginate($perPage, ['*'], 'page', $page);
             
             // Only show "No product found" message when a search term was provided but no results were found
             if ($paginatedProducts->isEmpty() && !empty($name)) {

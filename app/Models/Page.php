@@ -3,17 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App;
 use App\Services\CacheService;
 
 class Page extends Model
 {
-    public function getTranslation($field = '', $lang = false){
-        $lang = $lang == false ? App::getLocale() : $lang;
-        $page_translation = $this->hasMany(PageTranslation::class)->where('lang', $lang)->first();
-        return $page_translation != null ? $page_translation->$field : $this->$field;
-    }
-
     protected $fillable = [
         'type',
         'title',
@@ -45,10 +38,5 @@ class Page extends Model
             CacheService::clearPageCache();
             CacheService::clearPolicyCache();
         });
-    }
-
-    public function page_translations()
-    {
-        return $this->hasMany(PageTranslation::class);
     }
 }

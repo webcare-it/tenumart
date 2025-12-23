@@ -249,13 +249,13 @@
                                 </a>
                             </li>
                         @endif
-                        @if(Auth::user()->user_type == 'admin' || in_array('5', json_decode(Auth::user()->staff->role->permissions)))
+                        {{-- @if(Auth::user()->user_type == 'admin' || in_array('5', json_decode(Auth::user()->staff->role->permissions)))
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('seller_orders.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['seller_orders.index', 'seller_orders.show'])}}">
                                     <span class="aiz-side-nav-text">{{translate('Seller Orders')}}</span>
                                 </a>
                             </li>
-                        @endif
+                        @endif --}}
                         {{-- @if(Auth::user()->user_type == 'admin' || in_array('6', json_decode(Auth::user()->staff->role->permissions)))
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('pick_up_point.order_index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['pick_up_point.order_index','pick_up_point.order_show'])}}">
@@ -888,11 +888,11 @@
                                     <span class="aiz-side-nav-text">{{translate('Payment Methods')}}</span>
                                 </a>
                             </li> --}}
-                            <li class="aiz-side-nav-item">
+                            {{-- <li class="aiz-side-nav-item">
                                 <a href="{{ route('file_system.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">{{translate('File System & Cache Configuration')}}</span>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="aiz-side-nav-item">
                                 <a href="{{ route('social_login.index') }}" class="aiz-side-nav-link">
                                     <span class="aiz-side-nav-text">{{translate('Social media Logins')}}</span>

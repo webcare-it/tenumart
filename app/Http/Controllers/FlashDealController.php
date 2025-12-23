@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\FlashDeal;
-use App\Models\FlashDealTranslation;
 use App\Models\FlashDealProduct;
 use App\Models\Product;
 use Illuminate\Support\Str;
@@ -72,10 +71,6 @@ class FlashDealController extends Controller
                 $root_product->save();
             }
 
-            $flash_deal_translation = FlashDealTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'flash_deal_id' => $flash_deal->id]);
-            $flash_deal_translation->title = $request->title;
-            $flash_deal_translation->save();
-
             flash(translate('Flash Deal has been inserted successfully'))->success();
             return redirect()->route('flash_deals.index');
         }
@@ -128,11 +123,10 @@ class FlashDealController extends Controller
 
         $flash_deal->background_color = $request->background_color;
 
-        if($request->lang == env("DEFAULT_LANGUAGE")){
-          $flash_deal->title = $request->title;
-          if (($flash_deal->slug == null) || ($flash_deal->title != $request->title)) {
-              $flash_deal->slug = strtolower(str_replace(' ', '-', $request->title) . '-' . Str::random(5));
-          }
+        // Directly update the title without checking language
+        $flash_deal->title = $request->title;
+        if (($flash_deal->slug == null) || ($flash_deal->title != $request->title)) {
+            $flash_deal->slug = strtolower(str_replace(' ', '-', $request->title) . '-' . Str::random(5));
         }
 
         $flash_deal->banner = $request->banner;
@@ -154,10 +148,6 @@ class FlashDealController extends Controller
                 $root_product->save();
             }
 
-            $sub_category_translation = FlashDealTranslation::firstOrNew(['lang' => $request->lang, 'flash_deal_id' => $flash_deal->id]);
-            $sub_category_translation->title = $request->title;
-            $sub_category_translation->save();
-
             flash(translate('Flash Deal has been updated successfully'))->success();
             return back();
         }
@@ -178,10 +168,6 @@ class FlashDealController extends Controller
         $flash_deal = FlashDeal::findOrFail($id);
         foreach ($flash_deal->flash_deal_products as $key => $flash_deal_product) {
             $flash_deal_product->delete();
-        }
-
-        foreach ($flash_deal->flash_deal_translations as $key => $flash_deal_translation) {
-            $flash_deal_translation->delete();
         }
 
         FlashDeal::destroy($id);

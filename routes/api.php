@@ -254,8 +254,11 @@ Route::group(['prefix' => 'v2'], function() {
     
     // Landing Pages
     Route::apiResource('landing-pages', 'Api\V2\LandingPageController')->only(['index', 'show'])->middleware('api.cache');
-    Route::get('landing-pages/slug/{slug}', 'Api\V2\LandingPageController@showBySlug')->middleware('api.cache');
+    Route::get('landing-pages/slug/{slug}', 'Api\V2\LandingPageController@showBySlug')->middleware('api.cache:300');
     
+    Route::get('product-metadata/{id}', 'Api\V2\MetadataController@productMetadata');
+
+
     // Metadata API
     Route::get('metadata', 'Api\V2\MetadataController@index');
     Route::get('site-info', 'Api\V2\MetadataController@getSiteInfo');

@@ -687,6 +687,7 @@ class OrderController extends Controller
         
         // Update order details (quantity, price, discount) only if provided
         $subtotal = 0;
+        $shipping = 0;
         $subtotalUpdated = false;
         if ($request->has('order_details')) {
             foreach ($request->order_details as $orderDetailData) {
@@ -703,6 +704,7 @@ class OrderController extends Controller
                     
                     // Add to subtotal
                     $subtotal += $orderDetail->price;
+                    $shipping += $orderDetail->shipping_cost;
                     $subtotalUpdated = true;
                 }
             }
@@ -710,7 +712,7 @@ class OrderController extends Controller
         
         // Update order grand total only if order details were updated
         if ($subtotalUpdated) {
-            $order->grand_total = $subtotal + ($order->shipping_cost ?? 0) + ($order->tax ?? 0);
+            $order->grand_total = $subtotal + ($shipping ?? 0) + ($order->tax ?? 0);
         }
         
         if ($order->save()) {

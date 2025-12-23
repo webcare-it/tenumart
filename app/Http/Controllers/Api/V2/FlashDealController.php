@@ -7,6 +7,7 @@ use App\Http\Resources\V2\ProductCollection;
 use App\Http\Resources\V2\ProductMiniCollection;
 use App\Models\FlashDeal;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
 class FlashDealController extends Controller
 {

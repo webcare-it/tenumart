@@ -130,7 +130,7 @@
     				</form>
     			</div>
     		</div>
-            <div class="card">
+            {{-- <div class="card">
     			<div class="card-header">
     				<h6 class="fw-600 mb-0">{{ translate('Cookies Agreement') }}</h6>
     			</div>
@@ -159,8 +159,8 @@
     					</div>
     				</form>
     			</div>
-    		</div>
-            <div class="card">
+    		</div> --}}
+            {{-- <div class="card">
     			<div class="card-header">
     				<h6 class="fw-600 mb-0">{{ translate('Website Popup') }}</h6>
     			</div>
@@ -199,8 +199,8 @@
     					</div>
     				</form>
     			</div>
-    		</div>
-            <div class="card">
+    		</div> --}}
+            {{-- <div class="card">
                 <div class="card-header">
                     <h6 class="fw-600 mb-0">{{ translate('Custom Script') }}</h6>
                 </div>
@@ -228,7 +228,7 @@
                         </div>
                     </form>
                 </div>
-            </div>
+            </div> --}}
     	</div>
     </div>
 

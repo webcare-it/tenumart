@@ -125,7 +125,7 @@
             
             <div class="form-group">
                 <label for="note">{{ translate('Order Note') }}</label>
-                <textarea class="form-control" id="note" name="note" rows="3">{{ $order->note }}</textarea>
+                <textarea class="form-control" id="note" name="note" rows="3">{{ $order->notes }}</textarea>
             </div>
             
             <div class="form-group mb-0 text-right">

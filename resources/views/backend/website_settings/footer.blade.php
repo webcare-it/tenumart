@@ -39,7 +39,7 @@
                                     {!! get_setting('about_us_description', null, $lang) !!}
                                 </textarea>
 							</div>
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 <label>{{ translate('Play Store Link') }}</label>
                                 <input type="hidden" name="types[]" value="play_store_link">
                                 <input type="text" class="form-control" placeholder="http://" name="play_store_link" value="{{ get_setting('play_store_link') }}">
@@ -48,7 +48,7 @@
                                 <label>{{ translate('App Store Link') }}</label>
                                 <input type="hidden" name="types[]" value="app_store_link">
                                 <input type="text" class="form-control" placeholder="http://" name="app_store_link" value="{{ get_setting('app_store_link') }}">
-                            </div>
+                            </div> --}}
 							<div class="text-right">
 								<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
 							</div>
@@ -86,7 +86,7 @@
 					</div>
 				</div>
 			</div>
-            <div class="col-lg-12">
+            {{-- <div class="col-lg-12">
                 <div class="card shadow-none bg-light">
 					<div class="card-header">
 						<h6 class="mb-0">{{ translate('Link Widget One') }}</h6>
@@ -157,7 +157,7 @@
 						</form>
 					</div>
 				</div>
-			</div>
+			</div> --}}
 		</div>
 	</div>
 </div>
@@ -222,21 +222,6 @@
                   <label>{{ translate('LinkedIn') }}</label>
                   <input type="hidden" name="types[]" value="linkedin_link">
                   <input type="text" class="form-control" placeholder="http://" name="linkedin_link" value="{{ get_setting('linkedin_link') }}">
-                </div>
-                <div class="form-group">
-                  <label>{{ translate('Pinterest') }}</label>
-                  <input type="hidden" name="types[]" value="pinterest_link">
-                  <input type="text" class="form-control" placeholder="http://" name="pinterest_link" value="{{ get_setting('pinterest_link') }}">
-                </div>
-                <div class="form-group">
-                  <label>{{ translate('VK') }}</label>
-                  <input type="hidden" name="types[]" value="vk_link">
-                  <input type="text" class="form-control" placeholder="http://" name="vk_link" value="{{ get_setting('vk_link') }}">
-                </div>
-                <div class="form-group">
-                  <label>{{ translate('Odnoklassniki') }}</label>
-                  <input type="hidden" name="types[]" value="odnoklassniki_link">
-                  <input type="text" class="form-control" placeholder="http://" name="odnoklassniki_link" value="{{ get_setting('odnoklassniki_link') }}">
                 </div>
                 <div class="text-right">
                   <button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>

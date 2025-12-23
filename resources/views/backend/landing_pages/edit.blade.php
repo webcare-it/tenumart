@@ -76,6 +76,14 @@
                             <input type="text" placeholder="{{translate('Video ID')}}" id="video_id" name="video_id" class="form-control" value="{{ $landingPage->video_id }}">
                         </div>
                     </div>
+
+                      
+                    <div class="form-group row">
+                        <label class="col-md-3 col-form-label">{{translate('Feature Title')}}</label>
+                        <div class="col-md-9">
+                            <input type="text" placeholder="{{translate('Feature Title')}}" value="{{ $landingPage->short_description }}" id="short_description" name="short_description" class="form-control">
+                        </div>
+                    </div>
                     
                     <div class="form-group row">
                         <label class="col-md-3 col-form-label">{{translate('Features')}}</label>
@@ -85,13 +93,6 @@
                                     <textarea placeholder="{{translate('Feature')}} {{$i}}" id="feature_{{$i}}" name="feature_{{$i}}" class="aiz-text-editor form-control">{{ $landingPage->{'feature_'.$i} }}</textarea>
                                 </div>
                             @endfor
-                        </div>
-                    </div>
-                    
-                    <div class="form-group row">
-                        <label class="col-md-3 col-form-label">{{translate('Short Description')}}</label>
-                        <div class="col-md-9">
-                            <textarea name="short_description" rows="4" class="aiz-text-editor form-control" placeholder="{{translate('Short Description')}}">{{ $landingPage->short_description }}</textarea>
                         </div>
                     </div>
                     

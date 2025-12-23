@@ -32,7 +32,7 @@
 		                    <div class="file-preview"></div>
 						</div>
 	                </div>
-                    <div class="form-group row">
+                    {{-- <div class="form-group row">
 						<label class="col-md-3 col-from-label">{{translate('Show Language Switcher?')}}</label>
 						<div class="col-md-8">
 							<label class="aiz-switch aiz-switch-success mb-0">
@@ -41,8 +41,8 @@
 								<span></span>
 							</label>
 						</div>
-					</div>
-                    <div class="form-group row">
+					</div> --}}
+                    {{-- <div class="form-group row">
                         <label class="col-md-3 col-from-label">{{translate('Show Currency Switcher?')}}</label>
 						<div class="col-md-8">
 							<label class="aiz-switch aiz-switch-success mb-0">
@@ -51,7 +51,7 @@
 								<span></span>
 							</label>
 						</div>
-					</div>
+					</div> --}}
 	                <div class="form-group row">
 						<label class="col-md-3 col-from-label">{{translate('Enable stikcy header?')}}</label>
 						<div class="col-md-8">
@@ -62,7 +62,7 @@
 							</label>
 						</div>
 					</div>
-					<div class="border-top pt-3">
+					{{-- <div class="border-top pt-3">
 						<div class="form-group row">
 		                    <label class="col-md-3 col-from-label">{{ translate('Topbar Banner') }}</label>
 							<div class="col-md-8">
@@ -86,8 +86,8 @@
 								</div>
 							</div>
 						</div>
-					</div>
-                    <div class="border-top pt-3">
+					</div> --}}
+                    {{-- <div class="border-top pt-3">
                         <div class="form-group row">
 							<label class="col-md-3 col-from-label">{{translate('Help line number')}}</label>
 							<div class="col-md-8">
@@ -97,8 +97,8 @@
 								</div>
 							</div>
 						</div>
-                    </div>
-					<div class="border-top pt-3">
+                    </div> --}}
+					{{-- <div class="border-top pt-3">
 						<label class="">{{translate('Header Nav Menu')}}</label>
 						<div class="header-nav-menu">
 							<input type="hidden" name="types[]" value="header_menu_labels">
@@ -149,7 +149,7 @@
 							data-target=".header-nav-menu">
 							{{ translate('Add New') }}
 						</button>
-					</div>
+					</div> --}}
 					<div class="text-right">
 						<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
 					</div>

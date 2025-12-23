@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Page;
-use App\Models\PageTranslation;
 
 
 class PageController extends Controller
@@ -39,20 +38,16 @@ class PageController extends Controller
     {
         $page = new Page;
         $page->title = $request->title;
-        if (Page::where('slug', preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug)))->first() == null) {
-            $page->slug             = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
-            $page->type             = "custom_page";
-            $page->content          = $request->content;
-            $page->meta_title       = $request->meta_title;
-            $page->meta_description = $request->meta_description;
-            $page->keywords         = $request->keywords;
-            $page->meta_image       = $request->meta_image;
+        $page->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
+        $page->type = "custom_page";
+        $page->content = $request->content;
+        $page->meta_title = $request->meta_title;
+        $page->meta_description = $request->meta_description;
+        $page->keywords = $request->keywords;
+        $page->meta_image = $request->meta_image;
+        
+        if (Page::where('slug', $page->slug)->first() == null) {
             $page->save();
-
-            $page_translation           = PageTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'page_id' => $page->id]);
-            $page_translation->title    = $request->title;
-            $page_translation->content  = $request->content;
-            $page_translation->save();
 
             flash(translate('New page has been created successfully'))->success();
             return redirect()->route('website.pages');
@@ -105,24 +100,22 @@ class PageController extends Controller
     public function update(Request $request, $id)
     {
         $page = Page::findOrFail($id);
-        if (Page::where('id','!=', $id)->where('slug', preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug)))->first() == null) {
+        $slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
+        
+        if (Page::where('id','!=', $id)->where('slug', $slug)->first() == null) {
             if($page->type == 'custom_page'){
-              $page->slug           = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
+              $page->slug = $slug;
             }
-            if($request->lang == env("DEFAULT_LANGUAGE")){
-              $page->title          = $request->title;
-              $page->content        = $request->content;
-            }
-            $page->meta_title       = $request->meta_title;
+            
+            // Update all page fields
+            $page->title = $request->title;
+            $page->content = $request->content;
+            $page->meta_title = $request->meta_title;
             $page->meta_description = $request->meta_description;
-            $page->keywords         = $request->keywords;
-            $page->meta_image       = $request->meta_image;
+            $page->keywords = $request->keywords;
+            $page->meta_image = $request->meta_image;
+            
             $page->save();
-
-            $page_translation           = PageTranslation::firstOrNew(['lang' => $request->lang, 'page_id' => $page->id]);
-            $page_translation->title    = $request->title;
-            $page_translation->content  = $request->content;
-            $page_translation->save();
 
             flash(translate('Page has been updated successfully'))->success();
             return redirect()->route('website.pages');
@@ -142,10 +135,7 @@ class PageController extends Controller
     public function destroy($id)
     {
         $page = Page::findOrFail($id);
-        foreach ($page->page_translations as $key => $page_translation) {
-            $page_translation->delete();
-        }
-        if(Page::destroy($id)){
+        if($page->delete()){
             flash(translate('Page has been deleted successfully'))->success();
             return redirect()->back();
         }

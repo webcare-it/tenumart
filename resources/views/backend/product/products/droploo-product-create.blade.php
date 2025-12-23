@@ -510,7 +510,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0 h6">{{translate('New Arrival')}}</h5>
+                        <h5 class="mb-0 h6">{{translate('Featured')}}</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group row">

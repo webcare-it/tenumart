@@ -689,6 +689,7 @@ class ProductController extends Controller
         CoreComponentRepository::initializeCache();
 
         $product = Product::findOrFail($id);
+        // dd($product->stocks->count());
         if($product->digital == 1) {
             return redirect('digitalproducts/' . $id . '/edit');
         }
@@ -729,6 +730,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
+        //dd($request->all());
         $product                    = Product::findOrFail($id);
         $product->category_id       = $request->category_id;
         $product->brand_id          = $request->brand_id;
@@ -909,12 +911,27 @@ class ProductController extends Controller
         $isDroplooProduct = $product->b_product_id != null;
         
         // FIX: For variant products with b_product_id, skip deletion and only update
-        // For regular variant products (without b_product_id), delete and recreate stocks
+        // For regular variant products (without b_product_id), handle both creation and updates
         if(count($combinations[0]) > 0 && !$isDroplooProduct){
             $product->variant_product = 1;
-            foreach ($product->stocks as $key => $stock) {
-                $stock->delete();
+            
+            // Check if we're updating existing stocks (flag set in form) or creating new ones
+            $hasExistingStocks = false;
+            foreach($request->all() as $key => $value) {
+                if(strpos($key, 'existing_stock_') === 0) {
+                    $hasExistingStocks = true;
+                    break;
+                }
             }
+            
+            // Only delete stocks if we're NOT updating existing ones
+            if(!$hasExistingStocks) {
+                // Delete old stocks only if we have new stocks to create
+                foreach ($product->stocks as $key => $stock) {
+                    $stock->delete();
+                }
+            }
+            
             foreach ($combinations as $key => $combination){
                 $str = '';
                 foreach ($combination as $key => $item){
@@ -931,21 +948,36 @@ class ProductController extends Controller
                         }
                     }
                 }
+                
+                $field_str = str_replace('.', '_', $str);
+                $field_str = str_replace('-', '_', $field_str);
+                $field_str = str_replace(' ', '_', $field_str);
+                
+                // When updating existing stocks, skip if price is not set
+                if($hasExistingStocks && (!isset($request['price_'.$field_str]) || $request['price_'.$field_str] === null || $request['price_'.$field_str] === '')) {
+                    continue;
+                }
+                
+                // When creating new stocks, price must be set or use unit_price as fallback
+                if(!$hasExistingStocks && (!isset($request['price_'.$field_str]) || $request['price_'.$field_str] === null || $request['price_'.$field_str] === '')) {
+                    $price = $request->unit_price; // Use default unit price
+                } else {
+                    $price = $request['price_'.$field_str];
+                }
+                
                 $product_stock = ProductStock::where('product_id', $product->id)->where('variant', $str)->first();
                 if($product_stock == null){
                     $product_stock = new ProductStock;
                     $product_stock->product_id = $product->id;
                 }
-                if(isset($request['price_'.str_replace('.', '_', $str)])) {
 
-                    $product_stock->variant = $str;
-                    $product_stock->price = $request['price_'.str_replace('.', '_', $str)];
-                    $product_stock->sku = $request['sku_'.str_replace('.', '_', $str)];
-                    $product_stock->qty = $request['qty_'.str_replace('.', '_', $str)];
-                    $product_stock->image = $request['img_'.str_replace('.', '_', $str)];
-     
-                    $product_stock->save();
-                }
+                $product_stock->variant = $str;
+                $product_stock->price = $price;
+                $product_stock->sku = isset($request['sku_'.$field_str]) ? $request['sku_'.$field_str] : '';
+                $product_stock->qty = isset($request['qty_'.$field_str]) ? $request['qty_'.$field_str] : 0;
+                $product_stock->image = isset($request['img_'.$field_str]) ? $request['img_'.$field_str] : '';
+                
+                $product_stock->save();
             }
         }
         elseif($isDroplooProduct && $product->variant_product == 1) {

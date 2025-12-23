@@ -21,7 +21,7 @@ class ApiCacheHeaders
         $response = $next($request);
         
         // Default cache duration is 1 hour (3600 seconds)
-        $cacheDuration = $duration ? (int)$duration : 3600;
+        $cacheDuration = $duration ? (int)$duration : 300;
         
         // Add ETag for better cache validation
         $etag = md5($response->getContent());
@@ -34,7 +34,7 @@ class ApiCacheHeaders
         
         // Set cache headers
         $headers = [
-            'Cache-Control' => 'public, max-age=' . $cacheDuration . ', stale-while-revalidate=3600',
+            'Cache-Control' => 'public, max-age=' . $cacheDuration . ', stale-while-revalidate=259200',
             'Expires' => now()->addSeconds($cacheDuration)->toRfc7231String(),
             'ETag' => '"' . $etag . '"',
             'Last-Modified' => now()->toRfc7231String(),

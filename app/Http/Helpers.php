@@ -830,27 +830,15 @@ if (!function_exists('addon_is_activated')) {
 // Add unified helper function for generating order codes
 if (!function_exists('generate_order_code')) {
     /**
-     * Generate an order code based on domain name and a 6-digit number
-     * Format: domain-000001
+     * Generate a unique order code based on domain name and incremental number
+     * Format: domain-000011
      * 
-     * @param int|null $number The number to append (will be zero-padded to 6 digits). 
-     *                         If null, will auto-increment based on Order model count.
-     * @param string $modelClass The Eloquent model class to use for counting orders (when auto-incrementing)
+     * @param int|null $number Not used in new implementation
+     * @param string $modelClass The Eloquent model class to use for checking uniqueness
      * @return string
      */
     function generate_order_code($number = null, $modelClass = '\App\Models\Order')
     {
-        // If no number provided, auto-increment based on model count
-        if ($number === null) {
-            try {
-                // Try to get count from the model
-                $number = $modelClass::count() + 1;
-            } catch (\Exception $e) {
-                // If there's an error (e.g., table doesn't exist yet), default to 1
-                $number = 1;
-            }
-        }
-        
         // Get the APP_URL from environment
         $appUrl = env('APP_URL', 'http://localhost');
         
@@ -870,11 +858,42 @@ if (!function_exists('generate_order_code')) {
             $domain = $host;
         }
         
-        // Format the number to 6 digits with leading zeros
-        $formattedNumber = str_pad($number, 4, '0', STR_PAD_LEFT);
-        
-        // Return the formatted code
-        return $domain . '-' . $formattedNumber;
+        // Generate a unique sequential number
+        $attempt = 0;
+        do {
+            try {
+                // Get the current max order ID to ensure uniqueness
+                $maxId = $modelClass::max('id');
+                $nextNumber = ($maxId ?: 0) + 1 + $attempt;
+                
+                // Format the number to 6 digits with leading zeros
+                $formattedNumber = str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+                $code = $domain . '-' . $formattedNumber;
+                
+                // Check if this code already exists
+                $existingOrder = $modelClass::where('code', $code)->first();
+                
+                if (!$existingOrder) {
+                    // Code is unique
+                    return $code;
+                }
+                
+                // If code exists, try next number
+                $attempt++;
+                
+                // Safety check to prevent infinite loops
+                if ($attempt > 1000) {
+                    // Generate random suffix if too many attempts
+                    $randomNumber = rand(100000, 999999);
+                    return $domain . '-R' . $randomNumber;
+                }
+            } catch (\Exception $e) {
+                // If there's an error, fall back to timestamp-based approach
+                $timestamp = time();
+                $formattedNumber = str_pad(($timestamp % 1000000), 6, '0', STR_PAD_LEFT);
+                return $domain . '-' . $formattedNumber;
+            }
+        } while (true);
     }
 }
 
